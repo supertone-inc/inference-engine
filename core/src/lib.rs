@@ -1,14 +1,11 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+pub trait InferenceEngine {
+    fn input_shapes<Size>(&self) -> &[&[Size]];
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    fn output_shapes<Size>(&self) -> &[&[Size]];
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    fn run<Input, Output, Error>(
+        &mut self,
+        inputs: impl AsRef<[Input]>,
+        outputs: impl AsMut<[Output]>,
+    ) -> Result<(), Error>;
 }
