@@ -1,0 +1,15 @@
+[package]
+name = "inference-engine-ort-sys"
+version.workspace = true
+publish.workspace = true
+edition.workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+const_format = "0.2"
+execute-command = "0.3"
+
+[build-dependencies]
+const_format = "0.2"
+execute-command = "0.3"
