@@ -1,0 +1,27 @@
+#!/bin/bash
+
+cargo clippy --workspace -- -D warnings || exit $?
+
+for file in $(git diff --name-only --staged); do
+    if [ ! -f "$file" ]; then
+        continue
+    fi
+
+    case "$file" in
+    *.rs)
+        rustfmt --edition 2021 "$file"
+        ;;
+    *.c | *.cpp | *.cxx | *.h | *.hpp | *.hxx)
+        clang-format -i "$file"
+        ;;
+    *)
+        continue
+        ;;
+    esac
+
+    if [ $? -ne 0 ]; then
+        continue
+    fi
+
+    git add "$file" || exit $?
+done
