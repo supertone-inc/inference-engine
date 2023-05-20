@@ -11,5 +11,6 @@ const_format = "0.2"
 execute-command = "0.3"
 
 [build-dependencies]
+bindgen = "0.65"
 const_format = "0.2"
 execute-command = "0.3"
