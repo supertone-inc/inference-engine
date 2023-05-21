@@ -173,6 +173,28 @@ private:
     std::vector<std::vector<int64_t>> output_shapes;
     std::vector<int64_t> output_element_counts;
     std::vector<Ort::Value> output_values;
+
+    static int64_t get_element_count(const std::vector<int64_t> &shape)
+    {
+        if (shape.empty())
+        {
+            return 0;
+        }
+
+        auto element_count = 1;
+
+        for (auto v : shape)
+        {
+            if (v < 0)
+            {
+                return -1;
+            }
+
+            element_count *= v;
+        }
+
+        return element_count;
+    }
 };
 
 OrtInferenceEngine::OrtInferenceEngine(const std::byte *model_data, size_t model_data_size)

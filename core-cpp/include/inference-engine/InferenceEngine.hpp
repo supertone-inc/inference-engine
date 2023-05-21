@@ -18,31 +18,4 @@ public:
 
     virtual void run() = 0;
 };
-
-inline int64_t get_element_count(const int64_t *shape, size_t size)
-{
-    if (!shape || !size)
-    {
-        return 0;
-    }
-
-    auto element_count = 1;
-
-    for (auto i = 0; i < size; i++)
-    {
-        if (shape[i] < 0)
-        {
-            return -1;
-        }
-
-        element_count *= shape[i];
-    }
-
-    return element_count;
-}
-
-inline int64_t get_element_count(const std::vector<int64_t> &shape)
-{
-    return get_element_count(shape.data(), shape.size());
-}
 } // namespace inference_engine
