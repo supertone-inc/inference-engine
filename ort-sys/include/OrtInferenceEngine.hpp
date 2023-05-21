@@ -5,8 +5,6 @@
 class OrtInferenceEngine
 {
 public:
-    class Impl;
-
     static Result<OrtInferenceEngine> create(const void *model_data, size_t model_data_size_bytes);
 
     OrtInferenceEngine();
@@ -20,7 +18,8 @@ public:
     virtual ~OrtInferenceEngine();
 
 private:
-    Impl *impl;
+    class Impl;
+    Impl *impl = nullptr;
 
     OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes);
 };

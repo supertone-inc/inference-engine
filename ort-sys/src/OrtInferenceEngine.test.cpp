@@ -23,9 +23,9 @@ TEST_CASE("OrtInferenceEngine with invalid model data")
     REQUIRE(std::string(result.error.get_message()) == "No graph was found in the protobuf.");
 }
 
-// TEST_CASE("OrtInferenceEngine")
-// {
-//     auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul.onnx");
-//     auto result = OrtInferenceEngine::create(model.data(), model.size());
-//     REQUIRE(result.code == ResultCode::Ok);
-// }
+TEST_CASE("OrtInferenceEngine")
+{
+    auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul.onnx");
+    auto result = OrtInferenceEngine::create(model.data(), model.size());
+    REQUIRE(result.code == ResultCode::Ok);
+}
