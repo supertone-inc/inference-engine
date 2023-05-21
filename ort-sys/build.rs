@@ -82,7 +82,6 @@ fn generate_bindings() {
             non_exhaustive: false,
         })
         .disable_name_namespacing()
-        .opaque_type("Error")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .respect_cxx_access_specs(true)
         .size_t_is_usize(true)

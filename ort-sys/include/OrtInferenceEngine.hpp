@@ -2,6 +2,8 @@
 
 #include "Result.hpp"
 
+#include <cstddef>
+
 class OrtInferenceEngine
 {
 public:

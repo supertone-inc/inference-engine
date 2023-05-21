@@ -3,6 +3,14 @@
 
 include!("bindings.rs");
 
+impl Drop for Error {
+    fn drop(&mut self) {
+        unsafe {
+            Error_Error_destructor(self as _);
+        }
+    }
+}
+
 impl Drop for OrtInferenceEngine {
     fn drop(&mut self) {
         unsafe {
