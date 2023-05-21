@@ -29,9 +29,9 @@ fn cpp() {
 
     if cfg!(windows) {
         #[rustfmt::skip]
-            exec::status(format!("{ORT_CPP_BUILD_DIR}/{CMAKE_CONFIG}/{TEST_PROGRAM_NAME}")).unwrap();
+        exec::status(format!("{ORT_CPP_BUILD_DIR}/{CMAKE_CONFIG}/{TEST_PROGRAM_NAME}")).unwrap();
     } else {
         #[rustfmt::skip]
-            exec::status(format!("{ORT_CPP_BUILD_DIR}/{TEST_PROGRAM_NAME}")).unwrap();
+        exec::status(format!("{ORT_CPP_BUILD_DIR}/{TEST_PROGRAM_NAME}")).unwrap();
     }
 }
