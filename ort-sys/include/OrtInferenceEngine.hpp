@@ -9,8 +9,6 @@ class OrtInferenceEngine
 public:
     static Result<OrtInferenceEngine> create(const void *model_data, size_t model_data_size_bytes);
 
-    OrtInferenceEngine();
-
     OrtInferenceEngine(OrtInferenceEngine &&);
     OrtInferenceEngine &operator=(OrtInferenceEngine &&);
 
@@ -23,5 +21,6 @@ private:
     class Impl;
     Impl *impl = nullptr;
 
+    OrtInferenceEngine() = default;
     OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes);
 };

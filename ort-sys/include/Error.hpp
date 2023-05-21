@@ -3,7 +3,7 @@
 class Error
 {
 public:
-    Error();
+    Error() = default;
     Error(const char *message);
 
     Error(Error &&);

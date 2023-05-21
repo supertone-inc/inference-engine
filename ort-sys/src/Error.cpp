@@ -7,11 +7,6 @@ struct Error::Impl
     std::string message;
 };
 
-Error::Error()
-    : impl(nullptr)
-{
-}
-
 Error::Error(const char *message)
     : impl(new Impl{message})
 {

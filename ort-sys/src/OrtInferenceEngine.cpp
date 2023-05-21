@@ -39,11 +39,6 @@ Result<OrtInferenceEngine> OrtInferenceEngine::create(const void *model_data, si
     }
 }
 
-OrtInferenceEngine::OrtInferenceEngine()
-    : impl(nullptr)
-{
-}
-
 OrtInferenceEngine::OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes)
     : impl(new Impl(model_data, model_data_size_bytes))
 {
