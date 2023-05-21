@@ -3,6 +3,14 @@
 
 include!("bindings.rs");
 
+impl Drop for OrtInferenceEngine {
+    fn drop(&mut self) {
+        unsafe {
+            OrtInferenceEngine_OrtInferenceEngine_destructor(self as _);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

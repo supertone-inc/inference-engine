@@ -82,7 +82,6 @@ fn generate_bindings() {
         })
         .disable_name_namespacing()
         .opaque_type("Error")
-        .opaque_type("OrtInferenceEngine")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .respect_cxx_access_specs(true)
         .size_t_is_usize(true)

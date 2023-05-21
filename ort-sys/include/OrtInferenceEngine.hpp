@@ -2,12 +2,25 @@
 
 #include "Result.hpp"
 
-#include <inference-engine/OrtInferenceEngine.hpp>
-#include <memory>
-
-struct OrtInferenceEngine
+class OrtInferenceEngine
 {
-    std::shared_ptr<inference_engine::OrtInferenceEngine> source;
+public:
+    class Impl;
 
     static Result<OrtInferenceEngine> create(const void *model_data, size_t model_data_size_bytes);
+
+    OrtInferenceEngine();
+
+    OrtInferenceEngine(OrtInferenceEngine &&);
+    OrtInferenceEngine &operator=(OrtInferenceEngine &&);
+
+    OrtInferenceEngine(const OrtInferenceEngine &) = delete;
+    OrtInferenceEngine &operator=(const OrtInferenceEngine &) = delete;
+
+    virtual ~OrtInferenceEngine();
+
+private:
+    Impl *impl;
+
+    OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes);
 };
