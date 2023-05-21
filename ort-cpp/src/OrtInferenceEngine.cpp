@@ -8,8 +8,8 @@ namespace inference_engine
 class OrtInferenceEngine::Impl
 {
 public:
-    Impl(const std::byte *model_data, size_t model_data_size)
-        : session(env, model_data, model_data_size, Ort::SessionOptions().SetIntraOpNumThreads(1))
+    Impl(const void *model_data, size_t model_data_size_bytes)
+        : session(env, model_data, model_data_size_bytes, Ort::SessionOptions().SetIntraOpNumThreads(1))
         , memory_info(Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU))
         , run_options(Ort::RunOptions{nullptr})
         , input_count(session.GetInputCount())
@@ -197,8 +197,8 @@ private:
     }
 };
 
-OrtInferenceEngine::OrtInferenceEngine(const std::byte *model_data, size_t model_data_size)
-    : impl(new Impl(model_data, model_data_size))
+OrtInferenceEngine::OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes)
+    : impl(new Impl(model_data, model_data_size_bytes))
 {
 }
 

@@ -10,7 +10,7 @@ namespace inference_engine
 class OrtInferenceEngine : public InferenceEngine
 {
 public:
-    OrtInferenceEngine(const std::byte *model_data, size_t model_data_size);
+    OrtInferenceEngine(const void *model_data, size_t model_data_size_bytes);
 
     const std::vector<std::vector<int64_t>> &get_input_shapes() const override;
     void set_input_shapes(const std::vector<std::vector<int64_t>> &shapes) override;
