@@ -31,31 +31,33 @@ TEST_CASE("OrtInferenceEngine Fixed Shape")
     auto &output_shapes = engine.get_output_shapes();
     REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, 100}});
 
-    std::vector<std::vector<float>> input_values;
-    std::vector<float *> input_value_ptrs;
+    std::vector<std::vector<float>> inputs;
+    std::vector<float *> input_ptrs;
     for (auto i = 0; i < input_shapes.size(); i++)
     {
-        input_values.push_back(std::vector<float>(
+        inputs.push_back(std::vector<float>(
             get_element_count(input_shapes[i]),
             1.0f
         ));
-        input_value_ptrs.push_back(input_values[i].data());
+        input_ptrs.push_back(inputs[i].data());
     }
+    engine.set_input_data(input_ptrs.data());
 
-    std::vector<std::vector<float>> output_values;
-    std::vector<float *> output_value_ptrs;
+    std::vector<std::vector<float>> outputs;
+    std::vector<float *> output_ptrs;
     for (auto i = 0; i < output_shapes.size(); i++)
     {
-        output_values.push_back(std::vector<float>(
+        outputs.push_back(std::vector<float>(
             get_element_count(output_shapes[i]),
             0.0f
         ));
-        output_value_ptrs.push_back(output_values[i].data());
+        output_ptrs.push_back(outputs[i].data());
     }
+    engine.set_output_data(output_ptrs.data());
 
-    engine.run(input_value_ptrs.data(), output_value_ptrs.data());
+    engine.run();
 
-    for (auto output : output_values)
+    for (auto output : outputs)
     {
         for (auto value : output)
         {
@@ -90,6 +92,7 @@ TEST_CASE("OrtInferenceEngine Dynamic Shape")
         ));
         input_ptrs.push_back(inputs[i].data());
     }
+    engine.set_input_data(input_ptrs.data());
 
     std::vector<std::vector<float>> outputs;
     std::vector<float *> output_ptrs;
@@ -101,8 +104,9 @@ TEST_CASE("OrtInferenceEngine Dynamic Shape")
         ));
         output_ptrs.push_back(outputs[i].data());
     }
+    engine.set_output_data(output_ptrs.data());
 
-    engine.run(input_ptrs.data(), output_ptrs.data());
+    engine.run();
 
     for (auto output : outputs)
     {

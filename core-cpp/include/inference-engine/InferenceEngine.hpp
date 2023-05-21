@@ -14,7 +14,10 @@ public:
     virtual const std::vector<std::vector<int64_t>> &get_output_shapes() const = 0;
     virtual void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes) = 0;
 
-    virtual void run(const float *const *input_values, float **output_values) = 0;
+    virtual void set_input_data(const float *const *data) = 0;
+    virtual void set_output_data(float **data) = 0;
+
+    virtual void run() = 0;
 };
 
 inline int64_t get_element_count(const int64_t *shape, size_t size)
