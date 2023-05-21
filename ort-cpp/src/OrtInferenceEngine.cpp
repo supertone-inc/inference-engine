@@ -90,6 +90,18 @@ public:
 
     void set_input_data(const float *const *data)
     {
+        if (input_values.size() == input_count)
+        {
+            for (auto i = 0; i < input_count; i++)
+            {
+                auto tensor_data = input_values[i].GetTensorMutableData<float>();
+                auto tensor_data_ptr = &tensor_data;
+                *tensor_data_ptr = const_cast<float *>(data[i]);
+            }
+
+            return;
+        }
+
         input_values.clear();
         for (auto i = 0; i < input_count; i++)
         {
@@ -105,6 +117,18 @@ public:
 
     void set_output_data(float **data)
     {
+        if (output_values.size() == output_count)
+        {
+            for (auto i = 0; i < output_count; i++)
+            {
+                auto tensor_data = output_values[i].GetTensorMutableData<float>();
+                auto tensor_data_ptr = &tensor_data;
+                *tensor_data_ptr = data[i];
+            }
+
+            return;
+        }
+
         output_values.clear();
         for (auto i = 0; i < output_count; i++)
         {
