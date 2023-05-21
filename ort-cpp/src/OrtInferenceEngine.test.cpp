@@ -31,34 +31,31 @@ TEST_CASE("OrtInferenceEngine Fixed Shape")
     auto &output_shapes = engine.get_output_shapes();
     REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, 100}});
 
-    std::vector<std::vector<float>> inputs;
-    std::vector<float *> input_ptrs;
+    std::vector<std::vector<float>> input_values;
+    std::vector<float *> input_value_ptrs;
     for (auto i = 0; i < input_shapes.size(); i++)
     {
-        inputs.push_back(std::vector<float>(
+        input_values.push_back(std::vector<float>(
             get_element_count(input_shapes[i]),
             1.0f
         ));
-        input_ptrs.push_back(inputs[i].data());
+        input_value_ptrs.push_back(input_values[i].data());
     }
 
-    std::vector<std::vector<float>> outputs;
-    std::vector<float *> output_ptrs;
+    std::vector<std::vector<float>> output_values;
+    std::vector<float *> output_value_ptrs;
     for (auto i = 0; i < output_shapes.size(); i++)
     {
-        outputs.push_back(std::vector<float>(
+        output_values.push_back(std::vector<float>(
             get_element_count(output_shapes[i]),
             0.0f
         ));
-        output_ptrs.push_back(outputs[i].data());
+        output_value_ptrs.push_back(output_values[i].data());
     }
 
-    engine.run(
-        input_ptrs.data(),
-        output_ptrs.data()
-    );
+    engine.run(input_value_ptrs.data(), output_value_ptrs.data());
 
-    for (auto output : outputs)
+    for (auto output : output_values)
     {
         for (auto value : output)
         {
@@ -72,17 +69,19 @@ TEST_CASE("OrtInferenceEngine Dynamic Shape")
     auto model = read_file(PROJECT_DIR / "test-models/dynamic-shape.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
-    auto input_shapes = engine.get_input_shapes();
-    REQUIRE(input_shapes == std::vector<std::vector<int64_t>>{{1, -1}});
-    input_shapes[0][1] = 200;
+    REQUIRE(engine.get_input_shapes() == std::vector<std::vector<int64_t>>{{1, -1}});
+    REQUIRE(engine.get_output_shapes() == std::vector<std::vector<int64_t>>{{1, -1}});
 
-    auto output_shapes = engine.get_output_shapes();
-    REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, -1}});
-    output_shapes[0][1] = 200;
+    engine.set_input_shapes({{1, 200}});
+    auto &input_shapes = engine.get_input_shapes();
+    REQUIRE(input_shapes == std::vector<std::vector<int64_t>>{{1, 200}});
+
+    engine.set_output_shapes({{1, 200}});
+    auto &output_shapes = engine.get_output_shapes();
+    REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, 200}});
 
     std::vector<std::vector<float>> inputs;
     std::vector<float *> input_ptrs;
-    std::vector<int64_t *> input_shape_ptrs;
     for (auto i = 0; i < input_shapes.size(); i++)
     {
         inputs.push_back(std::vector<float>(
@@ -90,12 +89,10 @@ TEST_CASE("OrtInferenceEngine Dynamic Shape")
             1.0f
         ));
         input_ptrs.push_back(inputs[i].data());
-        input_shape_ptrs.push_back(input_shapes[i].data());
     }
 
     std::vector<std::vector<float>> outputs;
     std::vector<float *> output_ptrs;
-    std::vector<int64_t *> output_shape_ptrs;
     for (auto i = 0; i < output_shapes.size(); i++)
     {
         outputs.push_back(std::vector<float>(
@@ -103,15 +100,9 @@ TEST_CASE("OrtInferenceEngine Dynamic Shape")
             0.0f
         ));
         output_ptrs.push_back(outputs[i].data());
-        output_shape_ptrs.push_back(output_shapes[i].data());
     }
 
-    engine.run(
-        input_ptrs.data(),
-        output_ptrs.data(),
-        input_shape_ptrs.data(),
-        output_shape_ptrs.data()
-    );
+    engine.run(input_ptrs.data(), output_ptrs.data());
 
     for (auto output : outputs)
     {

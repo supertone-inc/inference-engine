@@ -13,14 +13,12 @@ public:
     OrtInferenceEngine(const std::byte *model_data, size_t model_data_size);
 
     const std::vector<std::vector<int64_t>> &get_input_shapes() const override;
-    const std::vector<std::vector<int64_t>> &get_output_shapes() const override;
+    void set_input_shapes(const std::vector<std::vector<int64_t>> &shapes) override;
 
-    void run(
-        const float *const *input_data,
-        float **output_data,
-        const int64_t *const *input_shapes = nullptr,
-        const int64_t *const *output_shapes = nullptr
-    ) override;
+    const std::vector<std::vector<int64_t>> &get_output_shapes() const override;
+    void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes) override;
+
+    void run(const float *const *input_values, float **output_values) override;
 
 private:
     class Impl;
