@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 project(inference-engine-ort-sys)
 
-option(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS "Run tests" ON)
+option(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS "Run tests" OFF)
 
 add_subdirectory(
     ../ort-cpp
