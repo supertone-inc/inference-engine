@@ -35,7 +35,7 @@ Result<OrtInferenceEngine> OrtInferenceEngine::create(const void *model_data, si
     }
     catch (const std::exception &e)
     {
-        return {ResultCode::Error, {}, {e.what()}};
+        return {ResultCode::Error, {}, e.what()};
     }
 }
 
