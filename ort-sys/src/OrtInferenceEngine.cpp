@@ -13,6 +13,17 @@ public:
     {
     }
 
+    const base::OrtInferenceEngine &operator*() const
+    {
+        return *ptr;
+    }
+
+    base::OrtInferenceEngine &operator*()
+    {
+        return *ptr;
+    }
+
+private:
     std::shared_ptr<base::OrtInferenceEngine> ptr;
 };
 
