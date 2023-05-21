@@ -25,7 +25,7 @@ fn build_cpp() {
             -B {CMAKE_BUILD_DIR} \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
-            -D INFERENCE_ENGINE_ORT_BUILD_TESTS=OFF"
+            -D INFERENCE_ENGINE_ORT_RUN_TESTS=OFF"
     ))
     .unwrap();
     exec::status(format!(
