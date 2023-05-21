@@ -39,7 +39,26 @@ fn build_cpp() {
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}");
     println!("cargo:rustc-link-lib=inference-engine-ort-sys");
 
+    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/ort-cpp");
+    println!("cargo:rustc-link-lib=inference-engine-ort");
+
+    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/_deps/onnxruntime-src/lib");
+    println!("cargo:rustc-link-lib=onnxruntime");
+
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-lib=stdc++");
+
+    #[cfg(target_os = "macos")]
+    {
+        println!("cargo:rustc-link-lib=c++");
+        println!("cargo:rustc-link-lib=framework=Foundation");
+    }
+
     println!("cargo:rerun-if-changed=CMakeLists.txt");
+    println!("cargo:rerun-if-changed=src/Error.cpp");
+    println!("cargo:rerun-if-changed=src/lib.cpp");
+    println!("cargo:rerun-if-changed=src/OrtInferenceEngine.cpp");
+    println!("cargo:rerun-if-changed=src/Result.cpp");
     println!("cargo:rerun-if-changed=../ort-cpp");
     println!("cargo:rerun-if-changed=../core-cpp");
 }
@@ -52,11 +71,22 @@ fn generate_bindings() {
 
     bindgen::Builder::default()
         .header(header_path.display().to_string())
-        .clang_args(["-x", "c++", "-std=c++17"])
+        .allowlist_file("include/.*")
+        .blocklist_item("std::.*")
+        .blocklist_item("inference_engine::.*")
+        .clang_args([
+            "-x",
+            "c++",
+            "-std=c++17",
+            "-I../ort-cpp/include",
+            "-I../core-cpp/include",
+        ])
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
         })
         .disable_name_namespacing()
+        .opaque_type("Error")
+        .opaque_type("OrtInferenceEngine")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .respect_cxx_access_specs(true)
         .size_t_is_usize(true)
