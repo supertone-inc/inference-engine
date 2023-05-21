@@ -24,7 +24,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create() {
+    fn test_create_with_invalid_model_data() {
         unsafe {
             let result = OrtInferenceEngine::create(std::ptr::null(), 0);
             assert_eq!(result.code, ResultCode::Error);
@@ -34,7 +34,10 @@ mod tests {
                 .unwrap();
             assert_eq!(error_message, "No graph was found in the protobuf.");
         }
+    }
 
+    #[test]
+    fn test_create() {
         unsafe {
             let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
             let result = OrtInferenceEngine::create(model_data.as_ptr() as _, model_data.len());
