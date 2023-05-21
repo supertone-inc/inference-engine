@@ -54,6 +54,7 @@ fn build_cpp() {
     println!("cargo:rerun-if-changed=src/Error.cpp");
     println!("cargo:rerun-if-changed=src/lib.cpp");
     println!("cargo:rerun-if-changed=src/OrtInferenceEngine.cpp");
+    println!("cargo:rerun-if-changed=src/OrtInferenceEngine.test.cpp");
     println!("cargo:rerun-if-changed=src/Result.cpp");
     println!("cargo:rerun-if-changed=../ort-cpp");
     println!("cargo:rerun-if-changed=../core-cpp");
