@@ -18,5 +18,11 @@ mod tests {
                 .unwrap();
             assert_eq!(error_message, "No graph was found in the protobuf.");
         }
+
+        unsafe {
+            let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
+            let result = OrtInferenceEngine::create(model_data.as_ptr() as _, model_data.len());
+            assert_eq!(result.code, ResultCode::Ok);
+        }
     }
 }
