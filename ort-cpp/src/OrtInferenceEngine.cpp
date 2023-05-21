@@ -61,33 +61,6 @@ public:
         }
     }
 
-    const std::vector<std::vector<int64_t>> &get_output_shapes() const
-    {
-        return output_shapes;
-    }
-
-    void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes)
-    {
-        output_shapes = shapes;
-
-        output_element_counts.clear();
-        for (auto &shape : output_shapes)
-        {
-            output_element_counts.push_back(get_element_count(shape));
-        }
-
-        for (auto i = 0; i < output_values.size(); i++)
-        {
-            output_values[i] = Ort::Value::CreateTensor<float>(
-                memory_info,
-                output_values[i].GetTensorMutableData<float>(),
-                output_element_counts[i],
-                output_shapes[i].data(),
-                output_shapes[i].size()
-            );
-        }
-    }
-
     void set_input_data(const float *const *data)
     {
         if (input_values.size() == input_count)
@@ -112,6 +85,33 @@ public:
                 input_shapes[i].data(),
                 input_shapes[i].size()
             ));
+        }
+    }
+
+    const std::vector<std::vector<int64_t>> &get_output_shapes() const
+    {
+        return output_shapes;
+    }
+
+    void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes)
+    {
+        output_shapes = shapes;
+
+        output_element_counts.clear();
+        for (auto &shape : output_shapes)
+        {
+            output_element_counts.push_back(get_element_count(shape));
+        }
+
+        for (auto i = 0; i < output_values.size(); i++)
+        {
+            output_values[i] = Ort::Value::CreateTensor<float>(
+                memory_info,
+                output_values[i].GetTensorMutableData<float>(),
+                output_element_counts[i],
+                output_shapes[i].data(),
+                output_shapes[i].size()
+            );
         }
     }
 
@@ -190,6 +190,11 @@ void OrtInferenceEngine::set_input_shapes(const std::vector<std::vector<int64_t>
     impl->set_input_shapes(shapes);
 }
 
+void OrtInferenceEngine::set_input_data(const float *const *data)
+{
+    impl->set_input_data(data);
+}
+
 const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_output_shapes() const
 {
     return impl->get_output_shapes();
@@ -198,11 +203,6 @@ const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_output_shapes()
 void OrtInferenceEngine::set_output_shapes(const std::vector<std::vector<int64_t>> &shapes)
 {
     impl->set_output_shapes(shapes);
-}
-
-void OrtInferenceEngine::set_input_data(const float *const *data)
-{
-    impl->set_input_data(data);
 }
 
 void OrtInferenceEngine::set_output_data(float **data)

@@ -14,11 +14,10 @@ public:
 
     const std::vector<std::vector<int64_t>> &get_input_shapes() const override;
     void set_input_shapes(const std::vector<std::vector<int64_t>> &shapes) override;
+    void set_input_data(const float *const *data) override;
 
     const std::vector<std::vector<int64_t>> &get_output_shapes() const override;
     void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes) override;
-
-    void set_input_data(const float *const *data) override;
     void set_output_data(float **data) override;
 
     void run() override;
