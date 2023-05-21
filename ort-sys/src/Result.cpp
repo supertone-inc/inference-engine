@@ -3,7 +3,7 @@
 template <typename T>
 Result<T> ok(T &&value)
 {
-    return {ResultCode::Ok, value, {}};
+    return {ResultCode::Ok, std::move(value), {}};
 }
 
 template <typename T>
