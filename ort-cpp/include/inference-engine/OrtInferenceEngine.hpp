@@ -12,9 +12,8 @@ class OrtInferenceEngine : public InferenceEngine
 public:
     OrtInferenceEngine(const std::byte *model_data, size_t model_data_size);
 
-    const std::vector<TensorInfo> &get_input_info() const override;
-
-    const std::vector<TensorInfo> &get_output_info() const override;
+    const std::vector<std::vector<int64_t>> &get_input_shapes() const override;
+    const std::vector<std::vector<int64_t>> &get_output_shapes() const override;
 
     void run(
         const float *const *input_data,

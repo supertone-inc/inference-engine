@@ -20,128 +20,104 @@ std::vector<std::byte> read_file(const std::filesystem::path &file_path)
 
 using namespace inference_engine;
 
-namespace Catch
-{
-template <>
-struct StringMaker<TensorInfo>
-{
-    static std::string convert(TensorInfo const &value)
-    {
-        return Catch::rangeToString(value.shape);
-    }
-};
-} // namespace Catch
-
 TEST_CASE("OrtInferenceEngine Fixed Shape")
 {
     auto model = read_file(PROJECT_DIR / "test-models/fixed-shape.onnx");
-
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
-    auto input_info = engine.get_input_info();
-    REQUIRE(
-        input_info ==
-        std::vector<TensorInfo>{
-            TensorInfo(std::vector<int64_t>{1, 100}),
-        }
-    );
+    auto &input_shapes = engine.get_input_shapes();
+    REQUIRE(input_shapes == std::vector<std::vector<int64_t>>{{1, 100}});
 
-    auto output_info = engine.get_output_info();
-    REQUIRE(
-        output_info ==
-        std::vector<TensorInfo>{
-            TensorInfo(std::vector<int64_t>{1, 100}),
-        }
-    );
+    auto &output_shapes = engine.get_output_shapes();
+    REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, 100}});
 
-    std::vector<std::vector<float>> input_values;
-    std::vector<float *> inputs;
-    for (auto i = 0; i < input_info.size(); i++)
+    std::vector<std::vector<float>> inputs;
+    std::vector<float *> input_ptrs;
+    for (auto i = 0; i < input_shapes.size(); i++)
     {
-        auto count = input_info[i].element_count;
-        std::vector<float> values(count, 1.0f);
-        input_values.push_back(values);
-        inputs.push_back(input_values[i].data());
+        inputs.push_back(std::vector<float>(
+            get_element_count(input_shapes[i]),
+            1.0f
+        ));
+        input_ptrs.push_back(inputs[i].data());
     }
 
-    std::vector<std::vector<float>> output_values;
-    std::vector<float *> outputs;
-    for (auto i = 0; i < output_info.size(); i++)
+    std::vector<std::vector<float>> outputs;
+    std::vector<float *> output_ptrs;
+    for (auto i = 0; i < output_shapes.size(); i++)
     {
-        auto count = output_info[i].element_count;
-        std::vector<float> values(count, 0.0f);
-        output_values.push_back(values);
-        outputs.push_back(output_values[i].data());
+        outputs.push_back(std::vector<float>(
+            get_element_count(output_shapes[i]),
+            0.0f
+        ));
+        output_ptrs.push_back(outputs[i].data());
     }
 
-    engine.run(inputs.data(), outputs.data());
+    engine.run(
+        input_ptrs.data(),
+        output_ptrs.data()
+    );
 
-    for (auto i = 0; i < output_info[0].element_count; i++)
+    for (auto output : outputs)
     {
-        REQUIRE(outputs[0][i] != 0.0f);
+        for (auto value : output)
+        {
+            REQUIRE(value != 0.0f);
+        }
     }
 }
 
 TEST_CASE("OrtInferenceEngine Dynamic Shape")
 {
     auto model = read_file(PROJECT_DIR / "test-models/dynamic-shape.onnx");
-
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
-    auto input_info = engine.get_input_info();
-    REQUIRE(
-        input_info ==
-        std::vector<TensorInfo>{
-            TensorInfo(std::vector<int64_t>{1, -1}),
-        }
+    auto input_shapes = engine.get_input_shapes();
+    REQUIRE(input_shapes == std::vector<std::vector<int64_t>>{{1, -1}});
+    input_shapes[0][1] = 200;
+
+    auto output_shapes = engine.get_output_shapes();
+    REQUIRE(output_shapes == std::vector<std::vector<int64_t>>{{1, -1}});
+    output_shapes[0][1] = 200;
+
+    std::vector<std::vector<float>> inputs;
+    std::vector<float *> input_ptrs;
+    std::vector<int64_t *> input_shape_ptrs;
+    for (auto i = 0; i < input_shapes.size(); i++)
+    {
+        inputs.push_back(std::vector<float>(
+            get_element_count(input_shapes[i]),
+            1.0f
+        ));
+        input_ptrs.push_back(inputs[i].data());
+        input_shape_ptrs.push_back(input_shapes[i].data());
+    }
+
+    std::vector<std::vector<float>> outputs;
+    std::vector<float *> output_ptrs;
+    std::vector<int64_t *> output_shape_ptrs;
+    for (auto i = 0; i < output_shapes.size(); i++)
+    {
+        outputs.push_back(std::vector<float>(
+            get_element_count(output_shapes[i]),
+            0.0f
+        ));
+        output_ptrs.push_back(outputs[i].data());
+        output_shape_ptrs.push_back(output_shapes[i].data());
+    }
+
+    engine.run(
+        input_ptrs.data(),
+        output_ptrs.data(),
+        input_shape_ptrs.data(),
+        output_shape_ptrs.data()
     );
 
-    auto output_info = engine.get_output_info();
-    REQUIRE(
-        output_info ==
-        std::vector<TensorInfo>{
-            TensorInfo(std::vector<int64_t>{1, -1}),
+    for (auto output : outputs)
+    {
+        for (auto value : output)
+        {
+            REQUIRE(value != 0.0f);
         }
-    );
-
-    auto element_count = 200;
-
-    std::vector<std::vector<int64_t>> input_shape_values{{1, element_count}};
-    std::vector<int64_t *> input_shapes;
-    for (auto i = 0; i < input_shape_values.size(); i++)
-    {
-        input_shapes.push_back(input_shape_values[i].data());
-    }
-
-    std::vector<std::vector<float>> input_values;
-    std::vector<float *> inputs;
-    for (auto i = 0; i < input_shape_values.size(); i++)
-    {
-        std::vector<float> values(element_count, 1.0f);
-        input_values.push_back(values);
-        inputs.push_back(input_values[i].data());
-    }
-
-    std::vector<std::vector<int64_t>> output_shape_values{{1, element_count}};
-    std::vector<int64_t *> output_shapes;
-    for (auto i = 0; i < output_shape_values.size(); i++)
-    {
-        output_shapes.push_back(output_shape_values[i].data());
-    }
-
-    std::vector<std::vector<float>> output_values;
-    std::vector<float *> outputs;
-    for (auto i = 0; i < output_info.size(); i++)
-    {
-        std::vector<float> values(element_count, 0.0f);
-        output_values.push_back(values);
-        outputs.push_back(output_values[i].data());
-    }
-
-    engine.run(inputs.data(), outputs.data(), input_shapes.data(), output_shapes.data());
-
-    for (auto i = 0; i < element_count; i++)
-    {
-        REQUIRE(outputs[0][i] != 0.0f);
     }
 }

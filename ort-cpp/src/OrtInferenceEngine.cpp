@@ -17,29 +17,31 @@ public:
     {
         for (auto i = 0; i < input_count; i++)
         {
-            auto shape = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            auto info = TensorInfo(std::move(shape));
-            input_info.push_back(std::move(info));
             input_names.push_back(session.GetInputName(i, allocator));
+
+            auto shape = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
+            input_shapes.push_back(shape);
+            input_element_counts.push_back(get_element_count(shape));
         }
 
         for (auto i = 0; i < output_count; i++)
         {
-            auto shape = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            auto info = TensorInfo(std::move(shape));
-            output_info.push_back(std::move(info));
             output_names.push_back(session.GetOutputName(i, allocator));
+
+            auto shape = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
+            output_shapes.push_back(shape);
+            output_element_counts.push_back(get_element_count(shape));
         }
     }
 
-    const std::vector<TensorInfo> &get_input_info() const
+    const std::vector<std::vector<int64_t>> &get_input_shapes() const
     {
-        return input_info;
+        return input_shapes;
     }
 
-    const std::vector<TensorInfo> &get_output_info() const
+    const std::vector<std::vector<int64_t>> &get_output_shapes() const
     {
-        return output_info;
+        return output_shapes;
     }
 
     void run(
@@ -53,20 +55,15 @@ public:
         inputs.reserve(input_count);
         for (auto i = 0; i < input_count; i++)
         {
-            auto &info = input_info[i];
-            auto element_count = info.element_count;
-            auto shape_data = info.shape.data();
-            auto shape_size = info.shape.size();
+            auto &shape = this->input_shapes[i];
+            auto element_count = input_element_counts[i];
+            auto shape_data = const_cast<const int64_t *>(shape.data());
+            auto shape_size = shape.size();
 
             if (input_shapes && shape_size > 0)
             {
                 shape_data = input_shapes[i];
-
-                element_count = 1;
-                for (auto j = 0; j < shape_size; j++)
-                {
-                    element_count *= shape_data[j];
-                }
+                element_count = get_element_count(shape_data, shape_size);
             }
 
             auto tensor = Ort::Value::CreateTensor<float>(
@@ -84,24 +81,24 @@ public:
         outputs.reserve(output_count);
         for (auto i = 0; i < output_count; i++)
         {
-            auto &info = output_info[i];
-            auto element_count = info.element_count;
-            auto shape_data = info.shape.data();
-            auto shape_size = info.shape.size();
+            auto &shape = this->output_shapes[i];
+            auto element_count = output_element_counts[i];
+            auto shape_data = const_cast<const int64_t *>(shape.data());
+            auto shape_size = shape.size();
 
             if (output_shapes && shape_size > 0)
             {
                 shape_data = output_shapes[i];
-
-                element_count = 1;
-                for (auto j = 0; j < shape_size; j++)
-                {
-                    element_count *= shape_data[j];
-                }
+                element_count = get_element_count(shape_data, shape_size);
             }
 
-            auto tensor =
-                Ort::Value::CreateTensor<float>(memory_info, output_data[i], element_count, shape_data, shape_size);
+            auto tensor = Ort::Value::CreateTensor<float>(
+                memory_info,
+                output_data[i],
+                element_count,
+                shape_data,
+                shape_size
+            );
 
             outputs.push_back(std::move(tensor));
         }
@@ -125,12 +122,14 @@ private:
     const Ort::RunOptions run_options;
 
     const size_t input_count;
-    std::vector<TensorInfo> input_info;
     std::vector<const char *> input_names;
+    std::vector<std::vector<int64_t>> input_shapes;
+    std::vector<int64_t> input_element_counts;
 
     const size_t output_count;
-    std::vector<TensorInfo> output_info;
     std::vector<const char *> output_names;
+    std::vector<std::vector<int64_t>> output_shapes;
+    std::vector<int64_t> output_element_counts;
 };
 
 OrtInferenceEngine::OrtInferenceEngine(const std::byte *model_data, size_t model_data_size)
@@ -138,14 +137,14 @@ OrtInferenceEngine::OrtInferenceEngine(const std::byte *model_data, size_t model
 {
 }
 
-const std::vector<TensorInfo> &OrtInferenceEngine::get_input_info() const
+const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_input_shapes() const
 {
-    return impl->get_input_info();
+    return impl->get_input_shapes();
 }
 
-const std::vector<TensorInfo> &OrtInferenceEngine::get_output_info() const
+const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_output_shapes() const
 {
-    return impl->get_output_info();
+    return impl->get_output_shapes();
 }
 
 void OrtInferenceEngine::run(
