@@ -15,10 +15,6 @@ fn build_cpp() {
         "Release"
     };
 
-    println!("cargo:rustc-env=CMAKE_SOURCE_DIR={CMAKE_SOURCE_DIR}");
-    println!("cargo:rustc-env=CMAKE_BUILD_DIR={CMAKE_BUILD_DIR}");
-    println!("cargo:rustc-env=CMAKE_CONFIG={CMAKE_CONFIG}");
-
     exec::status(format!(
         "cmake \
             -S {CMAKE_SOURCE_DIR} \
