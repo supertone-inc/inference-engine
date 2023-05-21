@@ -15,9 +15,3 @@ struct Result
     T value;
     Error error;
 };
-
-template <typename T>
-Result<T> ok(T &&value);
-
-template <typename T>
-Result<T> err(Error &&error);

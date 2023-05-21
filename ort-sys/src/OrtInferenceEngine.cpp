@@ -27,27 +27,15 @@ private:
     std::shared_ptr<base::OrtInferenceEngine> ptr;
 };
 
-template <>
-Result<OrtInferenceEngine> ok<OrtInferenceEngine>(OrtInferenceEngine &&value)
-{
-    return {ResultCode::Ok, std::move(value), {}};
-}
-
-template <>
-Result<OrtInferenceEngine> err<OrtInferenceEngine>(Error &&value)
-{
-    return {ResultCode::Error, {}, std::move(value)};
-}
-
 Result<OrtInferenceEngine> OrtInferenceEngine::create(const void *model_data, size_t model_data_size_bytes)
 {
     try
     {
-        return ok<OrtInferenceEngine>({model_data, model_data_size_bytes});
+        return {ResultCode::Ok, {model_data, model_data_size_bytes}};
     }
     catch (const std::exception &e)
     {
-        return err<OrtInferenceEngine>({e.what()});
+        return {ResultCode::Error, {}, {e.what()}};
     }
 }
 
