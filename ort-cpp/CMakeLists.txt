@@ -18,7 +18,7 @@ if(INFERENCE_ENGINE_ORT_RUN_TESTS)
 
     add_executable(${PROJECT_NAME}-test ${CMAKE_CURRENT_LIST_DIR}/src/OrtInferenceEngine.test.cpp)
     set_target_properties(${PROJECT_NAME}-test PROPERTIES CXX_STANDARD 17)
-    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} Catch2WithMain ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}-test Catch2WithMain ${PROJECT_NAME})
 
     if(APPLE)
         target_link_libraries(${PROJECT_NAME}-test "-framework Foundation")
