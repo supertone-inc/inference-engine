@@ -20,7 +20,7 @@ std::vector<std::byte> read_file(const std::filesystem::path &file_path)
 
 using namespace inference_engine;
 
-TEST_CASE("OrtInferenceEngine Fixed Shape")
+TEST_CASE("OrtInferenceEngine with fixed-shape model")
 {
     auto model = read_file(PROJECT_DIR / "test-models/mat_mul.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
@@ -52,7 +52,7 @@ TEST_CASE("OrtInferenceEngine Fixed Shape")
     REQUIRE(outputs == std::vector<std::vector<float>>{{{19, 22, 43, 50}}});
 }
 
-TEST_CASE("OrtInferenceEngine Dynamic Shape")
+TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
     auto model = read_file(PROJECT_DIR / "test-models/mat_mul_dynamic_shape.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());

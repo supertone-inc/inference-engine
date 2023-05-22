@@ -64,7 +64,7 @@ mod tests {
     }
 
     #[test]
-    fn create() {
+    fn it_works() {
         unsafe {
             let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
             let result = OrtInferenceEngine::create(model_data.as_ptr() as _, model_data.len());

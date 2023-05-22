@@ -16,14 +16,14 @@ std::vector<std::byte> read_file(const std::filesystem::path &file_path)
     return std::move(file);
 }
 
-TEST_CASE("OrtInferenceEngine with invalid model data")
+TEST_CASE("create with invalid model data")
 {
     auto result = OrtInferenceEngine::create(nullptr, 0);
     REQUIRE(result.code == ResultCode::Error);
     REQUIRE(std::string(result.error.get_message()) == "No graph was found in the protobuf.");
 }
 
-TEST_CASE("OrtInferenceEngine")
+TEST_CASE("it works")
 {
     auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul.onnx");
     auto result = OrtInferenceEngine::create(model.data(), model.size());
