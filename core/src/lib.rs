@@ -1,21 +1,23 @@
 pub trait InferenceEngine {
+    type Error;
+
     fn input_count(&self) -> usize;
     fn input_shape(&self, index: usize) -> &[usize];
-    fn set_input_shape<Error>(&self, index: usize, shape: &[usize]) -> Result<(), Error>;
-    fn set_input_data<Data, Error>(
+    fn set_input_shape(
         &mut self,
         index: usize,
-        data: impl AsRef<Data>,
-    ) -> Result<(), Error>;
+        shape: impl AsRef<[usize]>,
+    ) -> Result<(), Self::Error>;
+    fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<(), Self::Error>;
 
     fn output_count(&self) -> usize;
     fn output_shape(&self, index: usize) -> &[usize];
-    fn set_output_shape<Error>(&self, index: usize, shape: &[usize]) -> Result<(), Error>;
-    fn set_output_data<Data, Error>(
+    fn set_output_shape(
         &mut self,
         index: usize,
-        data: impl AsMut<Data>,
-    ) -> Result<(), Error>;
+        shape: impl AsRef<[usize]>,
+    ) -> Result<(), Self::Error>;
+    fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<(), Self::Error>;
 
-    fn run<Error>(&mut self) -> Result<(), Error>;
+    fn run(&mut self) -> Result<(), Self::Error>;
 }

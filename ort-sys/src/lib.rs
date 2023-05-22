@@ -19,9 +19,35 @@ impl Drop for OrtInferenceEngine {
     }
 }
 
+impl<T, E: From<Error>> From<Result<T>> for std::result::Result<T, E> {
+    fn from(result: Result<T>) -> Self {
+        match result.code {
+            ResultCode::Ok => Ok(result.value),
+            _ => Err(result.error.into()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[derive(Debug)]
+    struct Error(String);
+
+    impl From<super::Error> for Error {
+        fn from(e: super::Error) -> Self {
+            unsafe {
+                Self(
+                    std::ffi::CStr::from_ptr(e.get_message())
+                        .to_string_lossy()
+                        .into(),
+                )
+            }
+        }
+    }
+
+    type Result<T> = std::result::Result<T, Error>;
 
     #[test]
     fn cpp() {
@@ -53,13 +79,10 @@ mod tests {
     #[test]
     fn with_invalid_model_data() {
         unsafe {
-            let result = OrtInferenceEngine::create(std::ptr::null(), 0);
-            assert_eq!(result.code, ResultCode::Error);
-
-            let error_message = std::ffi::CStr::from_ptr(result.error.get_message())
-                .to_str()
-                .unwrap();
-            assert_eq!(error_message, "No graph was found in the protobuf.");
+            match Result::from(OrtInferenceEngine::create(std::ptr::null(), 0)) {
+                Ok(_) => panic!("expected error"),
+                Err(Error(message)) => assert_eq!(message, "No graph was found in the protobuf."),
+            }
         }
     }
 
@@ -67,10 +90,11 @@ mod tests {
     fn with_dynamic_shape_model() {
         unsafe {
             let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
-            let mut engine = unwrap(OrtInferenceEngine::create(
+            let mut engine = Result::from(OrtInferenceEngine::create(
                 model_data.as_ptr() as _,
                 model_data.len(),
-            ));
+            ))
+            .unwrap();
             assert_eq!(engine.get_input_count(), 2);
             assert_eq!(engine.get_output_count(), 1);
             assert_eq!(get_input_shapes(&engine), [[0, 0], [0, 0]]);
@@ -88,21 +112,8 @@ mod tests {
             let mut output_data = [[0., 0., 0., 0.]];
             set_output_data(&mut engine, &mut [&mut output_data[0]]);
 
-            unwrap(engine.run());
+            Result::from(engine.run()).unwrap();
             assert_eq!(output_data, [[3., 4., 6., 8.]]);
-        }
-    }
-
-    unsafe fn unwrap<T>(result: Result<T>) -> T {
-        match result.code {
-            ResultCode::Ok => result.value,
-            _ => {
-                let error_message = std::ffi::CStr::from_ptr(result.error.get_message())
-                    .to_str()
-                    .unwrap();
-
-                panic!("{error_message}");
-            }
         }
     }
 
@@ -117,13 +128,13 @@ mod tests {
 
     unsafe fn set_input_shapes(engine: &mut OrtInferenceEngine, shapes: &[&[usize]]) {
         for i in 0..engine.get_input_count() {
-            unwrap(engine.set_input_shape(i, shapes[i].as_ptr(), shapes[i].len()));
+            Result::from(engine.set_input_shape(i, shapes[i].as_ptr(), shapes[i].len())).unwrap();
         }
     }
 
     unsafe fn set_input_data(engine: &mut OrtInferenceEngine, data: &[&[f32]]) {
         for i in 0..engine.get_input_count() {
-            unwrap(engine.set_input_data(i, data[i].as_ptr()));
+            Result::from(engine.set_input_data(i, data[i].as_ptr())).unwrap();
         }
     }
 
@@ -138,13 +149,13 @@ mod tests {
 
     unsafe fn set_output_shapes(engine: &mut OrtInferenceEngine, shapes: &[&[usize]]) {
         for i in 0..engine.get_output_count() {
-            unwrap(engine.set_output_shape(i, shapes[i].as_ptr(), shapes[i].len()));
+            Result::from(engine.set_output_shape(i, shapes[i].as_ptr(), shapes[i].len())).unwrap();
         }
     }
 
     unsafe fn set_output_data(engine: &mut OrtInferenceEngine, data: &mut [&mut [f32]]) {
         for i in 0..engine.get_output_count() {
-            unwrap(engine.set_output_data(i, data[i].as_mut_ptr()));
+            Result::from(engine.set_output_data(i, data[i].as_mut_ptr())).unwrap();
         }
     }
 }

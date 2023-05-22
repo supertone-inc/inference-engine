@@ -1,0 +1,10 @@
+[package]
+name = "inference-engine-ort"
+version.workspace = true
+publish.workspace = true
+edition.workspace = true
+
+[dependencies]
+inference-engine-core = { path = "../core" }
+inference-engine-ort-sys = { path = "../ort-sys" }
+thiserror = "1.0"
