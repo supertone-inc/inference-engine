@@ -26,11 +26,11 @@ TEST_CASE("OrtInferenceEngine with fixed-shape model")
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
-    REQUIRE(engine.get_input_shape(0) == std::vector<int64_t>{2, 2});
-    REQUIRE(engine.get_input_shape(1) == std::vector<int64_t>{2, 2});
+    REQUIRE(engine.get_input_shape(0) == std::vector<size_t>{2, 2});
+    REQUIRE(engine.get_input_shape(1) == std::vector<size_t>{2, 2});
 
     REQUIRE(engine.get_output_count() == 1);
-    REQUIRE(engine.get_output_shape(0) == std::vector<int64_t>{2, 2});
+    REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     std::vector<std::vector<float>> inputs{{1, 2, 3, 4}, {5, 6, 7, 8}};
     for (auto i = 0; i < inputs.size(); i++)
@@ -55,19 +55,19 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
-    REQUIRE(engine.get_input_shape(0) == std::vector<int64_t>{-1, -1});
-    REQUIRE(engine.get_input_shape(1) == std::vector<int64_t>{-1, -1});
+    REQUIRE(engine.get_input_shape(0) == std::vector<size_t>{0, 0});
+    REQUIRE(engine.get_input_shape(1) == std::vector<size_t>{0, 0});
 
     REQUIRE(engine.get_output_count() == 1);
-    REQUIRE(engine.get_output_shape(0) == std::vector<int64_t>{-1, -1});
+    REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{0, 0});
 
     engine.set_input_shape(0, {2, 1});
     engine.set_input_shape(1, {1, 2});
-    REQUIRE(engine.get_input_shape(0) == std::vector<int64_t>{2, 1});
-    REQUIRE(engine.get_input_shape(1) == std::vector<int64_t>{1, 2});
+    REQUIRE(engine.get_input_shape(0) == std::vector<size_t>{2, 1});
+    REQUIRE(engine.get_input_shape(1) == std::vector<size_t>{1, 2});
 
     engine.set_output_shape(0, {2, 2});
-    REQUIRE(engine.get_output_shape(0) == std::vector<int64_t>{2, 2});
+    REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     std::vector<std::vector<float>> inputs{{1, 2}, {3, 4}};
     for (auto i = 0; i < inputs.size(); i++)
