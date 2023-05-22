@@ -18,128 +18,128 @@ public:
         for (auto i = 0; i < input_count; i++)
         {
             input_names.push_back(session.GetInputName(i, allocator));
+            input_shapes.push_back(session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
+            input_element_counts.push_back(get_element_count(input_shapes[i]));
 
-            auto shape = session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            input_shapes.push_back(shape);
-            input_element_counts.push_back(get_element_count(shape));
+            if (input_element_counts[i] < 0)
+            {
+                std::vector<int64_t> empty_shape(input_shapes[i].size());
+                input_values.push_back(Ort::Value::CreateTensor<float>(
+                    memory_info,
+                    nullptr,
+                    0,
+                    empty_shape.data(),
+                    empty_shape.size()
+                ));
+            }
+            else
+            {
+                input_values.push_back(Ort::Value::CreateTensor<float>(
+                    memory_info,
+                    nullptr,
+                    input_element_counts[i],
+                    input_shapes[i].data(),
+                    input_shapes[i].size()
+                ));
+            }
         }
 
         for (auto i = 0; i < output_count; i++)
         {
             output_names.push_back(session.GetOutputName(i, allocator));
+            output_shapes.push_back(session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
+            output_element_counts.push_back(get_element_count(output_shapes[i]));
 
-            auto shape = session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape();
-            output_shapes.push_back(shape);
-            output_element_counts.push_back(get_element_count(shape));
-        }
-    }
-
-    const std::vector<std::vector<int64_t>> &get_input_shapes() const
-    {
-        return input_shapes;
-    }
-
-    void set_input_shapes(const std::vector<std::vector<int64_t>> &shapes)
-    {
-        input_shapes = shapes;
-
-        input_element_counts.clear();
-        for (auto &shape : input_shapes)
-        {
-            input_element_counts.push_back(get_element_count(shape));
-        }
-
-        for (auto i = 0; i < input_values.size(); i++)
-        {
-            input_values[i] = Ort::Value::CreateTensor<float>(
-                memory_info,
-                input_values[i].GetTensorMutableData<float>(),
-                input_element_counts[i],
-                input_shapes[i].data(),
-                input_shapes[i].size()
-            );
-        }
-    }
-
-    void set_input_data(const float *const *data)
-    {
-        if (input_values.size() == input_count)
-        {
-            for (auto i = 0; i < input_count; i++)
+            if (output_element_counts[i] < 0)
             {
-                auto tensor_data = input_values[i].GetTensorMutableData<float>();
-                auto tensor_data_ptr = &tensor_data;
-                *tensor_data_ptr = const_cast<float *>(data[i]);
+                std::vector<int64_t> empty_shape(output_shapes[i].size());
+                output_values.push_back(Ort::Value::CreateTensor<float>(
+                    memory_info,
+                    nullptr,
+                    0,
+                    empty_shape.data(),
+                    empty_shape.size()
+                ));
             }
-
-            return;
-        }
-
-        input_values.clear();
-        for (auto i = 0; i < input_count; i++)
-        {
-            input_values.push_back(Ort::Value::CreateTensor<float>(
-                memory_info,
-                const_cast<float *>(data[i]),
-                input_element_counts[i],
-                input_shapes[i].data(),
-                input_shapes[i].size()
-            ));
-        }
-    }
-
-    const std::vector<std::vector<int64_t>> &get_output_shapes() const
-    {
-        return output_shapes;
-    }
-
-    void set_output_shapes(const std::vector<std::vector<int64_t>> &shapes)
-    {
-        output_shapes = shapes;
-
-        output_element_counts.clear();
-        for (auto &shape : output_shapes)
-        {
-            output_element_counts.push_back(get_element_count(shape));
-        }
-
-        for (auto i = 0; i < output_values.size(); i++)
-        {
-            output_values[i] = Ort::Value::CreateTensor<float>(
-                memory_info,
-                output_values[i].GetTensorMutableData<float>(),
-                output_element_counts[i],
-                output_shapes[i].data(),
-                output_shapes[i].size()
-            );
-        }
-    }
-
-    void set_output_data(float **data)
-    {
-        if (output_values.size() == output_count)
-        {
-            for (auto i = 0; i < output_count; i++)
+            else
             {
-                auto tensor_data = output_values[i].GetTensorMutableData<float>();
-                auto tensor_data_ptr = &tensor_data;
-                *tensor_data_ptr = data[i];
+                output_values.push_back(Ort::Value::CreateTensor<float>(
+                    memory_info,
+                    nullptr,
+                    output_element_counts[i],
+                    output_shapes[i].data(),
+                    output_shapes[i].size()
+                ));
             }
-
-            return;
         }
+    }
 
-        output_values.clear();
-        for (auto i = 0; i < output_count; i++)
-        {
-            output_values.push_back(Ort::Value::CreateTensor<float>(
-                memory_info,
-                data[i],
-                output_element_counts[i],
-                output_shapes[i].data(),
-                output_shapes[i].size()
-            ));
-        }
+    size_t get_input_count() const
+    {
+        return input_count;
+    }
+
+    const std::vector<int64_t> &get_input_shape(size_t index) const
+    {
+        return input_shapes[index];
+    }
+
+    void set_input_shape(size_t index, const std::vector<int64_t> &shape)
+    {
+        input_shapes[index] = shape;
+        input_element_counts[index] = get_element_count(shape);
+        input_values[index] = Ort::Value::CreateTensor<float>(
+            memory_info,
+            input_values[index].GetTensorMutableData<float>(),
+            input_element_counts[index],
+            input_shapes[index].data(),
+            input_shapes[index].size()
+        );
+    }
+
+    void set_input_data(size_t index, const float *data)
+    {
+        input_values[index] = Ort::Value::CreateTensor<float>(
+            memory_info,
+            const_cast<float *>(data),
+            input_element_counts[index],
+            input_shapes[index].data(),
+            input_shapes[index].size()
+        );
+    }
+
+    size_t get_output_count() const
+    {
+        return output_count;
+    }
+
+    const std::vector<int64_t> &get_output_shape(size_t index) const
+    {
+        return output_shapes[index];
+    }
+
+    void set_output_shape(size_t index, const std::vector<int64_t> &shape)
+    {
+        output_shapes[index] = shape;
+        output_element_counts[index] = get_element_count(shape);
+        output_values[index] = Ort::Value::CreateTensor<float>(
+            memory_info,
+            output_values[index].GetTensorMutableData<float>(),
+            output_element_counts[index],
+            output_shapes[index].data(),
+            output_shapes[index].size()
+        );
+    }
+
+    void set_output_data(size_t index, float *data)
+    {
+        output_values[index] = Ort::Value::CreateTensor<float>(
+            memory_info,
+            data,
+            output_element_counts[index],
+            output_shapes[index].data(),
+            output_shapes[index].size()
+        );
     }
 
     void run()
@@ -202,34 +202,44 @@ OrtInferenceEngine::OrtInferenceEngine(const void *model_data, size_t model_data
 {
 }
 
-const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_input_shapes() const
+size_t OrtInferenceEngine::get_input_count() const
 {
-    return impl->get_input_shapes();
+    return impl->get_input_count();
 }
 
-void OrtInferenceEngine::set_input_shapes(const std::vector<std::vector<int64_t>> &shapes)
+const std::vector<int64_t> &OrtInferenceEngine::get_input_shape(size_t index) const
 {
-    impl->set_input_shapes(shapes);
+    return impl->get_input_shape(index);
 }
 
-void OrtInferenceEngine::set_input_data(const float *const *data)
+void OrtInferenceEngine::set_input_shape(size_t index, const std::vector<int64_t> &shape)
 {
-    impl->set_input_data(data);
+    impl->set_input_shape(index, shape);
 }
 
-const std::vector<std::vector<int64_t>> &OrtInferenceEngine::get_output_shapes() const
+void OrtInferenceEngine::set_input_data(size_t index, const float *data)
 {
-    return impl->get_output_shapes();
+    impl->set_input_data(index, data);
 }
 
-void OrtInferenceEngine::set_output_shapes(const std::vector<std::vector<int64_t>> &shapes)
+size_t OrtInferenceEngine::get_output_count() const
 {
-    impl->set_output_shapes(shapes);
+    return impl->get_output_count();
 }
 
-void OrtInferenceEngine::set_output_data(float **data)
+const std::vector<int64_t> &OrtInferenceEngine::get_output_shape(size_t index) const
 {
-    impl->set_output_data(data);
+    return impl->get_output_shape(index);
+}
+
+void OrtInferenceEngine::set_output_shape(size_t index, const std::vector<int64_t> &shape)
+{
+    impl->set_output_shape(index, shape);
+}
+
+void OrtInferenceEngine::set_output_data(size_t index, float *data)
+{
+    impl->set_output_data(index, data);
 }
 
 void OrtInferenceEngine::run()
