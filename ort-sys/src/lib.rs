@@ -51,7 +51,7 @@ mod tests {
     }
 
     #[test]
-    fn create_with_invalid_model_data() {
+    fn with_invalid_model_data() {
         unsafe {
             let result = OrtInferenceEngine::create(std::ptr::null(), 0);
             assert_eq!(result.code, ResultCode::Error);
@@ -64,11 +64,29 @@ mod tests {
     }
 
     #[test]
-    fn it_works() {
+    fn with_fixed_shape_model() {
         unsafe {
             let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
             let result = OrtInferenceEngine::create(model_data.as_ptr() as _, model_data.len());
             assert_eq!(result.code, ResultCode::Ok);
+
+            let engine = result.value;
+            assert_eq!(engine.get_input_count(), 2);
+            assert_eq!(engine.get_output_count(), 1);
+
+            let mut input_shapes = vec![];
+            for i in 0..engine.get_input_count() {
+                let shape = engine.get_input_shape(i);
+                input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
+            }
+            assert_eq!(input_shapes, [[2, 2], [2, 2]]);
+
+            let mut output_shapes = vec![];
+            for i in 0..engine.get_output_count() {
+                let shape = engine.get_output_shape(i);
+                output_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
+            }
+            assert_eq!(output_shapes, [[2, 2]]);
         }
     }
 }

@@ -72,3 +72,25 @@ OrtInferenceEngine::~OrtInferenceEngine()
         delete impl;
     }
 }
+
+size_t OrtInferenceEngine::get_input_count() const
+{
+    return (**impl).get_input_count();
+}
+
+Array<size_t> OrtInferenceEngine::get_input_shape(size_t index) const
+{
+    auto &shape = (**impl).get_input_shape(index);
+    return {shape.data(), shape.size()};
+}
+
+size_t OrtInferenceEngine::get_output_count() const
+{
+    return (**impl).get_output_count();
+}
+
+Array<size_t> OrtInferenceEngine::get_output_shape(size_t index) const
+{
+    auto &shape = (**impl).get_output_shape(index);
+    return {shape.data(), shape.size()};
+}

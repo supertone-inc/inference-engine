@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Array.hpp"
 #include "Result.hpp"
 
 #include <cstddef>
@@ -14,6 +15,12 @@ public:
 
     OrtInferenceEngine(const OrtInferenceEngine &) = delete;
     OrtInferenceEngine &operator=(const OrtInferenceEngine &) = delete;
+
+    size_t get_input_count() const;
+    Array<size_t> get_input_shape(size_t index) const;
+
+    size_t get_output_count() const;
+    Array<size_t> get_output_shape(size_t index) const;
 
     virtual ~OrtInferenceEngine();
 

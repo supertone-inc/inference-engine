@@ -9,8 +9,9 @@ add_subdirectory(
 )
 
 add_library(${PROJECT_NAME} STATIC
-    src/lib.cpp
+    src/Array.cpp
     src/Error.cpp
+    src/lib.cpp
     src/OrtInferenceEngine.cpp
     src/Result.cpp
 )
@@ -20,7 +21,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC inference-engine-ort)
 
 if(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS)
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-    
 
     include(../ort-cpp/cmake/catch2.cmake)
 

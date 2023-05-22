@@ -56,6 +56,8 @@ fn build_cpp() {
     }
 
     println!("cargo:rerun-if-changed=CMakeLists.txt");
+    println!("cargo:rerun-if-changed=include");
+    println!("cargo:rerun-if-changed=src/Array.cpp");
     println!("cargo:rerun-if-changed=src/Error.cpp");
     println!("cargo:rerun-if-changed=src/lib.cpp");
     println!("cargo:rerun-if-changed=src/OrtInferenceEngine.cpp");
