@@ -18,9 +18,11 @@ public:
 
     size_t get_input_count() const;
     Array<size_t> get_input_shape(size_t index) const;
+    Result<void *> set_input_shape(size_t index, const size_t *data, size_t size);
 
     size_t get_output_count() const;
     Array<size_t> get_output_shape(size_t index) const;
+    Result<void *> set_output_shape(size_t index, const size_t *data, size_t size);
 
     virtual ~OrtInferenceEngine();
 

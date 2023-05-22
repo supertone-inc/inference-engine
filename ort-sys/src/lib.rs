@@ -64,13 +64,13 @@ mod tests {
     }
 
     #[test]
-    fn with_fixed_shape_model() {
+    fn with_dynamic_shape_model() {
         unsafe {
-            let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
+            let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
             let result = OrtInferenceEngine::create(model_data.as_ptr() as _, model_data.len());
             assert_eq!(result.code, ResultCode::Ok);
 
-            let engine = result.value;
+            let mut engine = result.value;
             assert_eq!(engine.get_input_count(), 2);
             assert_eq!(engine.get_output_count(), 1);
 
@@ -79,7 +79,35 @@ mod tests {
                 let shape = engine.get_input_shape(i);
                 input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
             }
-            assert_eq!(input_shapes, [[2, 2], [2, 2]]);
+            assert_eq!(input_shapes, [[0, 0], [0, 0]]);
+
+            let mut output_shapes = vec![];
+            for i in 0..engine.get_output_count() {
+                let shape = engine.get_output_shape(i);
+                output_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
+            }
+            assert_eq!(output_shapes, [[0, 0]]);
+
+            let input_shapes = [[2, 1], [1, 2]];
+            for i in 0..engine.get_input_count() {
+                let shape = input_shapes[i];
+                let result = engine.set_input_shape(i, shape.as_ptr(), shape.len());
+                assert_eq!(result.code, ResultCode::Ok);
+            }
+
+            let mut input_shapes = vec![];
+            for i in 0..engine.get_input_count() {
+                let shape = engine.get_input_shape(i);
+                input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
+            }
+            assert_eq!(input_shapes, [[2, 1], [1, 2]]);
+
+            let output_shapes = [[2, 2]];
+            for i in 0..engine.get_output_count() {
+                let shape = output_shapes[i];
+                let result = engine.set_output_shape(i, shape.as_ptr(), shape.len());
+                assert_eq!(result.code, ResultCode::Ok);
+            }
 
             let mut output_shapes = vec![];
             for i in 0..engine.get_output_count() {

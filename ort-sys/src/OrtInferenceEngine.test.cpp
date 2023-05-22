@@ -23,9 +23,9 @@ TEST_CASE("OrtInferenceEngine with invalid model data")
     REQUIRE(std::string(result.error.get_message()) == "No graph was found in the protobuf.");
 }
 
-TEST_CASE("OrtInferenceEngine with fixed-shape model")
+TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
-    auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul.onnx");
+    auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
     auto result = OrtInferenceEngine::create(model.data(), model.size());
     REQUIRE(result.code == ResultCode::Ok);
 
@@ -33,19 +33,61 @@ TEST_CASE("OrtInferenceEngine with fixed-shape model")
     REQUIRE(engine.get_input_count() == 2);
     REQUIRE(engine.get_output_count() == 1);
 
-    std::vector<std::vector<size_t>> input_shapes;
-    for (auto i = 0; i < engine.get_input_count(); ++i)
     {
-        auto shape = engine.get_input_shape(i);
-        input_shapes.push_back({shape.data, shape.data + shape.size});
+        std::vector<std::vector<size_t>> input_shapes;
+        for (auto i = 0; i < engine.get_input_count(); ++i)
+        {
+            auto shape = engine.get_input_shape(i);
+            input_shapes.push_back({shape.data, shape.data + shape.size});
+        }
+        REQUIRE(input_shapes == std::vector<std::vector<size_t>>{{0, 0}, {0, 0}});
     }
-    REQUIRE(input_shapes == std::vector<std::vector<size_t>>{{2, 2}, {2, 2}});
 
-    std::vector<std::vector<size_t>> output_shapes;
-    for (auto i = 0; i < engine.get_output_count(); ++i)
     {
-        auto shape = engine.get_output_shape(i);
-        output_shapes.push_back({shape.data, shape.data + shape.size});
+        std::vector<std::vector<size_t>> output_shapes;
+        for (auto i = 0; i < engine.get_output_count(); ++i)
+        {
+            auto shape = engine.get_output_shape(i);
+            output_shapes.push_back({shape.data, shape.data + shape.size});
+        }
+        REQUIRE(output_shapes == std::vector<std::vector<size_t>>{{0, 0}});
     }
-    REQUIRE(output_shapes == std::vector<std::vector<size_t>>{{2, 2}});
+
+    {
+        std::vector<std::vector<size_t>> input_shapes{{2, 1}, {1, 2}};
+        for (auto i = 0; i < engine.get_input_count(); ++i)
+        {
+            auto result = engine.set_input_shape(i, input_shapes[i].data(), input_shapes[i].size());
+            REQUIRE(result.code == ResultCode::Ok);
+        }
+    }
+
+    {
+        std::vector<std::vector<size_t>> input_shapes;
+        for (auto i = 0; i < engine.get_input_count(); ++i)
+        {
+            auto shape = engine.get_input_shape(i);
+            input_shapes.push_back({shape.data, shape.data + shape.size});
+        }
+        REQUIRE(input_shapes == std::vector<std::vector<size_t>>{{2, 1}, {1, 2}});
+    }
+
+    {
+        std::vector<std::vector<size_t>> output_shapes{{2, 2}};
+        for (auto i = 0; i < engine.get_output_count(); ++i)
+        {
+            auto result = engine.set_output_shape(i, output_shapes[i].data(), output_shapes[i].size());
+            REQUIRE(result.code == ResultCode::Ok);
+        }
+    }
+
+    {
+        std::vector<std::vector<size_t>> output_shapes;
+        for (auto i = 0; i < engine.get_output_count(); ++i)
+        {
+            auto shape = engine.get_output_shape(i);
+            output_shapes.push_back({shape.data, shape.data + shape.size});
+        }
+        REQUIRE(output_shapes == std::vector<std::vector<size_t>>{{2, 2}});
+    }
 }

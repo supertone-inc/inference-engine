@@ -33,13 +33,13 @@ TEST_CASE("OrtInferenceEngine with fixed-shape model")
     REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     std::vector<std::vector<float>> inputs{{1, 2, 3, 4}, {5, 6, 7, 8}};
-    for (auto i = 0; i < inputs.size(); i++)
+    for (auto i = 0; i < engine.get_input_count(); i++)
     {
         engine.set_input_data(i, inputs[i].data());
     }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
-    for (auto i = 0; i < outputs.size(); i++)
+    for (auto i = 0; i < engine.get_output_count(); i++)
     {
         engine.set_output_data(i, outputs[i].data());
     }
@@ -70,13 +70,13 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     std::vector<std::vector<float>> inputs{{1, 2}, {3, 4}};
-    for (auto i = 0; i < inputs.size(); i++)
+    for (auto i = 0; i < engine.get_input_count(); i++)
     {
         engine.set_input_data(i, inputs[i].data());
     }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
-    for (auto i = 0; i < outputs.size(); i++)
+    for (auto i = 0; i < engine.get_output_count(); i++)
     {
         engine.set_output_data(i, outputs[i].data());
     }

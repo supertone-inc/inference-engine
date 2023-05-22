@@ -84,6 +84,19 @@ Array<size_t> OrtInferenceEngine::get_input_shape(size_t index) const
     return {shape.data(), shape.size()};
 }
 
+Result<void *> OrtInferenceEngine::set_input_shape(size_t index, const size_t *data, size_t size)
+{
+    try
+    {
+        (**impl).set_input_shape(index, {data, data + size});
+        return {ResultCode::Ok};
+    }
+    catch (const std::exception &e)
+    {
+        return {ResultCode::Error, {}, e.what()};
+    }
+}
+
 size_t OrtInferenceEngine::get_output_count() const
 {
     return (**impl).get_output_count();
@@ -93,4 +106,17 @@ Array<size_t> OrtInferenceEngine::get_output_shape(size_t index) const
 {
     auto &shape = (**impl).get_output_shape(index);
     return {shape.data(), shape.size()};
+}
+
+Result<void *> OrtInferenceEngine::set_output_shape(size_t index, const size_t *data, size_t size)
+{
+    try
+    {
+        (**impl).set_output_shape(index, {data, data + size});
+        return {ResultCode::Ok};
+    }
+    catch (const std::exception &e)
+    {
+        return {ResultCode::Error, {}, e.what()};
+    }
 }
