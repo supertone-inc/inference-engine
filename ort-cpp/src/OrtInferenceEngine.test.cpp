@@ -82,6 +82,5 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     }
 
     engine.run();
-
     REQUIRE(outputs == std::vector<std::vector<float>>{{{3, 4, 6, 8}}});
 }

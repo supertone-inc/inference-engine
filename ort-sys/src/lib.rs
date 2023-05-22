@@ -73,73 +73,78 @@ mod tests {
             ));
             assert_eq!(engine.get_input_count(), 2);
             assert_eq!(engine.get_output_count(), 1);
+            assert_eq!(get_input_shapes(&engine), [[0, 0], [0, 0]]);
+            assert_eq!(get_output_shapes(&engine), [[0, 0]]);
 
-            let mut input_shapes = vec![];
-            for i in 0..engine.get_input_count() {
-                let shape = engine.get_input_shape(i);
-                input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
-            }
-            assert_eq!(input_shapes, [[0, 0], [0, 0]]);
+            set_input_shapes(&mut engine, &[&[2, 1], &[1, 2]]);
+            assert_eq!(get_input_shapes(&engine), [[2, 1], [1, 2]]);
 
-            let mut output_shapes = vec![];
-            for i in 0..engine.get_output_count() {
-                let shape = engine.get_output_shape(i);
-                output_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
-            }
-            assert_eq!(output_shapes, [[0, 0]]);
-
-            let input_shapes = [[2, 1], [1, 2]];
-            for i in 0..engine.get_input_count() {
-                let shape = input_shapes[i];
-                unwrap(engine.set_input_shape(i, shape.as_ptr(), shape.len()));
-            }
-
-            let mut input_shapes = vec![];
-            for i in 0..engine.get_input_count() {
-                let shape = engine.get_input_shape(i);
-                input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
-            }
-            assert_eq!(input_shapes, [[2, 1], [1, 2]]);
-
-            let output_shapes = [[2, 2]];
-            for i in 0..engine.get_output_count() {
-                let shape = output_shapes[i];
-                unwrap(engine.set_output_shape(i, shape.as_ptr(), shape.len()));
-            }
-
-            let mut output_shapes = vec![];
-            for i in 0..engine.get_output_count() {
-                let shape = engine.get_output_shape(i);
-                output_shapes.push(std::slice::from_raw_parts(shape.data, shape.size));
-            }
-            assert_eq!(output_shapes, [[2, 2]]);
+            set_output_shapes(&mut engine, &[&[2, 2]]);
+            assert_eq!(get_output_shapes(&engine), [[2, 2]]);
 
             let input_data = [[1., 2.], [3., 4.]];
-            for i in 0..engine.get_input_count() {
-                unwrap(engine.set_input_data(i, input_data[i].as_ptr()));
-            }
+            set_input_data(&mut engine, &[&input_data[0], &input_data[1]]);
 
             let mut output_data = [[0., 0., 0., 0.]];
-            for i in 0..engine.get_output_count() {
-                unwrap(engine.set_output_data(i, output_data[i].as_mut_ptr()));
-            }
+            set_output_data(&mut engine, &mut [&mut output_data[0]]);
 
             unwrap(engine.run());
-
             assert_eq!(output_data, [[3., 4., 6., 8.]]);
         }
     }
 
-    fn unwrap<T>(result: Result<T>) -> T {
+    unsafe fn unwrap<T>(result: Result<T>) -> T {
         match result.code {
             ResultCode::Ok => result.value,
-            _ => unsafe {
+            _ => {
                 let error_message = std::ffi::CStr::from_ptr(result.error.get_message())
                     .to_str()
                     .unwrap();
 
                 panic!("{error_message}");
-            },
+            }
+        }
+    }
+
+    unsafe fn get_input_shapes(engine: &OrtInferenceEngine) -> Vec<Vec<usize>> {
+        let mut input_shapes = vec![];
+        for i in 0..engine.get_input_count() {
+            let shape = engine.get_input_shape(i);
+            input_shapes.push(std::slice::from_raw_parts(shape.data, shape.size).into());
+        }
+        input_shapes
+    }
+
+    unsafe fn set_input_shapes(engine: &mut OrtInferenceEngine, shapes: &[&[usize]]) {
+        for i in 0..engine.get_input_count() {
+            unwrap(engine.set_input_shape(i, shapes[i].as_ptr(), shapes[i].len()));
+        }
+    }
+
+    unsafe fn set_input_data(engine: &mut OrtInferenceEngine, data: &[&[f32]]) {
+        for i in 0..engine.get_input_count() {
+            unwrap(engine.set_input_data(i, data[i].as_ptr()));
+        }
+    }
+
+    unsafe fn get_output_shapes(engine: &OrtInferenceEngine) -> Vec<Vec<usize>> {
+        let mut output_shapes = vec![];
+        for i in 0..engine.get_output_count() {
+            let shape = engine.get_output_shape(i);
+            output_shapes.push(std::slice::from_raw_parts(shape.data, shape.size).into());
+        }
+        output_shapes
+    }
+
+    unsafe fn set_output_shapes(engine: &mut OrtInferenceEngine, shapes: &[&[usize]]) {
+        for i in 0..engine.get_output_count() {
+            unwrap(engine.set_output_shape(i, shapes[i].as_ptr(), shapes[i].len()));
+        }
+    }
+
+    unsafe fn set_output_data(engine: &mut OrtInferenceEngine, data: &mut [&mut [f32]]) {
+        for i in 0..engine.get_output_count() {
+            unwrap(engine.set_output_data(i, data[i].as_mut_ptr()));
         }
     }
 }

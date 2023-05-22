@@ -27,6 +27,64 @@ T unwrap(Result<T> &&result)
     throw std::runtime_error(result.error.get_message());
 }
 
+std::vector<std::vector<size_t>> get_input_shapes(const OrtInferenceEngine &engine)
+{
+    std::vector<std::vector<size_t>> shapes;
+
+    for (auto i = 0; i < engine.get_input_count(); ++i)
+    {
+        auto shape = engine.get_input_shape(i);
+        shapes.push_back({shape.data, shape.data + shape.size});
+    }
+
+    return std::move(shapes);
+}
+
+void set_input_shapes(OrtInferenceEngine &engine, const std::vector<std::vector<size_t>> &shapes)
+{
+    for (auto i = 0; i < engine.get_input_count(); ++i)
+    {
+        unwrap(engine.set_input_shape(i, shapes[i].data(), shapes[i].size()));
+    }
+}
+
+void set_input_data(OrtInferenceEngine &engine, const std::vector<std::vector<float>> &data)
+{
+    for (auto i = 0; i < engine.get_input_count(); ++i)
+    {
+        unwrap(engine.set_input_data(i, data[i].data()));
+    }
+}
+
+std::vector<std::vector<size_t>> get_output_shapes(const OrtInferenceEngine &engine)
+{
+    std::vector<std::vector<size_t>> shapes;
+
+    for (auto i = 0; i < engine.get_output_count(); ++i)
+    {
+        auto shape = engine.get_output_shape(i);
+        shapes.push_back({shape.data, shape.data + shape.size});
+    }
+
+    return std::move(shapes);
+}
+
+void set_output_shapes(OrtInferenceEngine &engine, const std::vector<std::vector<size_t>> &shapes)
+{
+    for (auto i = 0; i < engine.get_output_count(); ++i)
+    {
+        unwrap(engine.set_output_shape(i, shapes[i].data(), shapes[i].size()));
+    }
+}
+
+void set_output_data(OrtInferenceEngine &engine, std::vector<std::vector<float>> &data)
+{
+    for (auto i = 0; i < engine.get_output_count(); ++i)
+    {
+        unwrap(engine.set_output_data(i, data[i].data()));
+    }
+}
+
 TEST_CASE("OrtInferenceEngine with invalid model data")
 {
     auto result = OrtInferenceEngine::create(nullptr, 0);
@@ -40,76 +98,21 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     auto engine = unwrap(OrtInferenceEngine::create(model.data(), model.size()));
     REQUIRE(engine.get_input_count() == 2);
     REQUIRE(engine.get_output_count() == 1);
+    REQUIRE(get_input_shapes(engine) == std::vector<std::vector<size_t>>{{0, 0}, {0, 0}});
+    REQUIRE(get_output_shapes(engine) == std::vector<std::vector<size_t>>{{0, 0}});
 
-    {
-        std::vector<std::vector<size_t>> input_shapes;
-        for (auto i = 0; i < engine.get_input_count(); ++i)
-        {
-            auto shape = engine.get_input_shape(i);
-            input_shapes.push_back({shape.data, shape.data + shape.size});
-        }
-        REQUIRE(input_shapes == std::vector<std::vector<size_t>>{{0, 0}, {0, 0}});
-    }
+    set_input_shapes(engine, {{2, 1}, {1, 2}});
+    REQUIRE(get_input_shapes(engine) == std::vector<std::vector<size_t>>{{2, 1}, {1, 2}});
 
-    {
-        std::vector<std::vector<size_t>> output_shapes;
-        for (auto i = 0; i < engine.get_output_count(); ++i)
-        {
-            auto shape = engine.get_output_shape(i);
-            output_shapes.push_back({shape.data, shape.data + shape.size});
-        }
-        REQUIRE(output_shapes == std::vector<std::vector<size_t>>{{0, 0}});
-    }
-
-    {
-        std::vector<std::vector<size_t>> input_shapes{{2, 1}, {1, 2}};
-        for (auto i = 0; i < engine.get_input_count(); ++i)
-        {
-            unwrap(engine.set_input_shape(i, input_shapes[i].data(), input_shapes[i].size()));
-        }
-    }
-
-    {
-        std::vector<std::vector<size_t>> input_shapes;
-        for (auto i = 0; i < engine.get_input_count(); ++i)
-        {
-            auto shape = engine.get_input_shape(i);
-            input_shapes.push_back({shape.data, shape.data + shape.size});
-        }
-        REQUIRE(input_shapes == std::vector<std::vector<size_t>>{{2, 1}, {1, 2}});
-    }
-
-    {
-        std::vector<std::vector<size_t>> output_shapes{{2, 2}};
-        for (auto i = 0; i < engine.get_output_count(); ++i)
-        {
-            unwrap(engine.set_output_shape(i, output_shapes[i].data(), output_shapes[i].size()));
-        }
-    }
-
-    {
-        std::vector<std::vector<size_t>> output_shapes;
-        for (auto i = 0; i < engine.get_output_count(); ++i)
-        {
-            auto shape = engine.get_output_shape(i);
-            output_shapes.push_back({shape.data, shape.data + shape.size});
-        }
-        REQUIRE(output_shapes == std::vector<std::vector<size_t>>{{2, 2}});
-    }
+    set_output_shapes(engine, {{2, 2}});
+    REQUIRE(get_output_shapes(engine) == std::vector<std::vector<size_t>>{{2, 2}});
 
     std::vector<std::vector<float>> inputs{{1, 2}, {3, 4}};
-    for (auto i = 0; i < engine.get_input_count(); ++i)
-    {
-        unwrap(engine.set_input_data(i, inputs[i].data()));
-    }
+    set_input_data(engine, inputs);
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
-    for (auto i = 0; i < engine.get_output_count(); ++i)
-    {
-        unwrap(engine.set_output_data(i, outputs[i].data()));
-    }
+    set_output_data(engine, outputs);
 
     unwrap(engine.run());
-
     REQUIRE(outputs == std::vector<std::vector<float>>{{{3, 4, 6, 8}}});
 }
