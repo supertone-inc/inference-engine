@@ -76,8 +76,6 @@ fn generate_bindings() {
     bindgen::Builder::default()
         .header(header_path.display().to_string())
         .allowlist_file("include/.*")
-        .blocklist_item("std::.*")
-        .blocklist_item("inference_engine::.*")
         .clang_args([
             "-x",
             "c++",
