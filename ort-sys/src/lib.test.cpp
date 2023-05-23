@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <fstream>
 
-const std::filesystem::path PROJECT_DIR = std::filesystem::path(__FILE__).parent_path().parent_path();
-
 std::vector<std::byte> read_file(const std::filesystem::path &file_path)
 {
     auto file_size = std::filesystem::file_size(file_path);
@@ -118,7 +116,7 @@ TEST_CASE("OrtInferenceEngine with invalid model data")
 
 TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
-    auto model = read_file(PROJECT_DIR / "../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
+    auto model = read_file("../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
 
     Engine engine;
     unwrap(create_inference_engine(model.data(), model.size(), &engine.ptr));

@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-const std::filesystem::path PROJECT_DIR = std::filesystem::path(__FILE__).parent_path().parent_path();
-
 std::vector<std::byte> read_file(const std::filesystem::path &file_path)
 {
     auto file_size = std::filesystem::file_size(file_path);
@@ -22,7 +20,7 @@ using namespace inference_engine;
 
 TEST_CASE("OrtInferenceEngine with fixed-shape model")
 {
-    auto model = read_file(PROJECT_DIR / "test-models/mat_mul.onnx");
+    auto model = read_file("test-models/mat_mul.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
@@ -51,7 +49,7 @@ TEST_CASE("OrtInferenceEngine with fixed-shape model")
 
 TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
-    auto model = read_file(PROJECT_DIR / "test-models/mat_mul_dynamic_shape.onnx");
+    auto model = read_file("test-models/mat_mul_dynamic_shape.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
