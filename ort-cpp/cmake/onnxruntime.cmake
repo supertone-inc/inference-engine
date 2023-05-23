@@ -26,7 +26,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
     set(ONNXRUTNIME_OS win)
     set(ONNXRUNTIME_EXTENSION zip)
 
-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
+    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL AMD64)
         set(ONNXRUNTIME_ARCH x64)
     else()
         message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
