@@ -21,8 +21,8 @@ fn build_cpp() {
 
     exec::status(format!(
         "cmake \
-            -S {CMAKE_SOURCE_DIR} \
-            -B {CMAKE_BUILD_DIR} \
+            -S '{CMAKE_SOURCE_DIR}' \
+            -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
             -D INFERENCE_ENGINE_ORT_RUN_TESTS=OFF \
@@ -31,16 +31,18 @@ fn build_cpp() {
     .unwrap();
     exec::status(format!(
         "cmake \
-            --build {CMAKE_BUILD_DIR} \
+            --build '{CMAKE_BUILD_DIR}' \
             --config {CMAKE_CONFIG} \
             --parallel"
     ))
     .unwrap();
 
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}");
+    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/{CMAKE_CONFIG}");
     println!("cargo:rustc-link-lib=inference-engine-ort-sys");
 
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/ort-cpp");
+    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/ort-cpp/{CMAKE_CONFIG}");
     println!("cargo:rustc-link-lib=inference-engine-ort");
 
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/_deps/onnxruntime-src/lib");
@@ -70,7 +72,7 @@ fn generate_bindings() {
 
     bindgen::Builder::default()
         .header(header_path.display().to_string())
-        .allowlist_file("include/.*")
+        .allowlist_function("inference_engine::.*")
         .clang_args([
             "-x",
             "c++",

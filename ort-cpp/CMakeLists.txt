@@ -3,6 +3,8 @@ project(inference-engine-ort)
 
 option(INFERENCE_ENGINE_ORT_RUN_TESTS "Run tests" OFF)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+
 add_library(${PROJECT_NAME} STATIC src/OrtInferenceEngine.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
