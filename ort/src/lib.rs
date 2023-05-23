@@ -1,19 +1,25 @@
 pub use inference_engine_core::*;
 
 use inference_engine_ort_sys as sys;
+use std::ffi::{c_void, CStr};
+use std::ptr::{null, null_mut};
 use thiserror::Error;
 
-pub struct OrtInferenceEngine(sys::OrtInferenceEngine);
+pub struct OrtInferenceEngine(*mut c_void);
 
 impl OrtInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {
             let model_data = model_data.as_ref();
+            let mut model = null_mut();
 
-            Ok(Self(Result::from(sys::OrtInferenceEngine::create(
+            Result::from(sys::create_inference_engine(
                 model_data.as_ptr() as _,
                 model_data.len(),
-            ))?))
+                &mut model,
+            ))?;
+
+            Ok(OrtInferenceEngine(model))
         }
     }
 }
@@ -22,51 +28,65 @@ impl InferenceEngine for OrtInferenceEngine {
     type Error = Error;
 
     fn input_count(&self) -> usize {
-        unsafe { self.0.get_input_count() }
+        unsafe { sys::get_input_count(self.0) }
     }
 
     fn input_shape(&self, index: usize) -> &[usize] {
         unsafe {
-            let shape = self.0.get_input_shape(index);
-            std::slice::from_raw_parts(shape.data, shape.size)
+            let mut data = null();
+            let mut size = 0;
+            sys::get_input_shape(self.0, index, &mut data, &mut size);
+            std::slice::from_raw_parts(data, size)
         }
     }
 
     fn set_input_shape(&mut self, index: usize, shape: impl AsRef<[usize]>) -> Result<()> {
         unsafe {
             let shape = shape.as_ref();
-            Result::from(self.0.set_input_shape(index, shape.as_ptr(), shape.len())).and(Ok(()))
+            Result::from(sys::set_input_shape(
+                self.0,
+                index,
+                shape.as_ptr(),
+                shape.len(),
+            ))
         }
     }
 
     fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
-        unsafe { Result::from(self.0.set_input_data(index, data.as_ptr())).and(Ok(())) }
+        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
     }
 
     fn output_count(&self) -> usize {
-        unsafe { self.0.get_output_count() }
+        unsafe { sys::get_output_count(self.0) }
     }
 
     fn output_shape(&self, index: usize) -> &[usize] {
         unsafe {
-            let shape = self.0.get_output_shape(index);
-            std::slice::from_raw_parts(shape.data, shape.size)
+            let mut data = null();
+            let mut size = 0;
+            sys::get_output_shape(self.0, index, &mut data, &mut size);
+            std::slice::from_raw_parts(data, size)
         }
     }
 
     fn set_output_shape(&mut self, index: usize, shape: impl AsRef<[usize]>) -> Result<()> {
         unsafe {
             let shape = shape.as_ref();
-            Result::from(self.0.set_output_shape(index, shape.as_ptr(), shape.len())).and(Ok(()))
+            Result::from(sys::set_output_shape(
+                self.0,
+                index,
+                shape.as_ptr(),
+                shape.len(),
+            ))
         }
     }
 
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
-        unsafe { Result::from(self.0.set_output_data(index, data.as_mut_ptr())).and(Ok(())) }
+        unsafe { Result::from(sys::set_output_data(self.0, index, data.as_mut_ptr())) }
     }
 
     fn run(&mut self) -> Result<()> {
-        unsafe { Result::from(self.0.run()).and(Ok(())) }
+        unsafe { Result::from(sys::run(self.0)) }
     }
 }
 
@@ -78,14 +98,17 @@ pub enum Error {
     SysError(String),
 }
 
-impl From<sys::Error> for Error {
-    fn from(e: sys::Error) -> Self {
-        unsafe {
-            Self::SysError(
-                std::ffi::CStr::from_ptr(e.get_message())
-                    .to_string_lossy()
-                    .into(),
-            )
+impl From<sys::ResultCode> for Error {
+    fn from(code: sys::ResultCode) -> Self {
+        match code {
+            sys::ResultCode::Ok => panic!("Expected an error."),
+            sys::ResultCode::Error => unsafe {
+                Self::SysError(
+                    CStr::from_ptr(sys::get_last_error_message())
+                        .to_string_lossy()
+                        .into(),
+                )
+            },
         }
     }
 }

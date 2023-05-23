@@ -8,6 +8,8 @@ namespace inference_engine
 class InferenceEngine
 {
 public:
+    virtual ~InferenceEngine() = default;
+
     virtual size_t get_input_count() const = 0;
     virtual const std::vector<size_t> &get_input_shape(size_t index) const = 0;
     virtual void set_input_shape(size_t index, const std::vector<size_t> &shape) = 0;
