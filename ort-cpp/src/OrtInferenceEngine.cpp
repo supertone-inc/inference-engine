@@ -1,6 +1,5 @@
 #include "inference-engine/OrtInferenceEngine.hpp"
 
-#include <algorithm>
 #include <onnxruntime_cxx_api.h>
 #include <vector>
 
@@ -12,12 +11,10 @@ public:
     template <typename U>
     Shape(const std::vector<U> &values)
     {
-        std::transform(
-            values.begin(),
-            values.end(),
-            std::back_inserter(this->values),
-            [](auto v) { return v > 0 ? v : 0; }
-        );
+        for (auto v : values)
+        {
+            this->values.push_back(v > 0 ? v : 0);
+        }
         element_count = count_elements(values);
     }
 
