@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn with_fixed_shape_model() {
-        let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul.onnx");
+        let model_data = include_bytes!("../../ort-cpp/test-models/matmul.onnx");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
         assert_eq!(engine.input_count(), 2);
         assert_eq!(engine.input_shape(0), [2, 2]);
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn with_dynamic_shape_model() {
-        let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
+        let model_data = include_bytes!("../../ort-cpp/test-models/matmul_dynamic.onnx");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
         assert_eq!(engine.input_count(), 2);
         assert_eq!(engine.output_count(), 1);

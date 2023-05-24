@@ -20,7 +20,7 @@ using namespace inference_engine;
 
 TEST_CASE("OrtInferenceEngine with fixed-shape model")
 {
-    auto model = read_file("test-models/mat_mul.onnx");
+    auto model = read_file("test-models/matmul.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
@@ -49,7 +49,7 @@ TEST_CASE("OrtInferenceEngine with fixed-shape model")
 
 TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
-    auto model = read_file("test-models/mat_mul_dynamic_shape.onnx");
+    auto model = read_file("test-models/matmul_dynamic.onnx");
     auto engine = OrtInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);

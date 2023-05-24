@@ -1,6 +1,6 @@
 from onnx import helper, TensorProto, OperatorSetIdProto
 
-model_file = "../test-models/mat_mul.onnx"
+model_file = "../test-models/matmul.onnx"
 
 input_names = ["A", "B"]
 input_dims = [(2, 2), (2, 2)]

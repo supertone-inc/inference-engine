@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn with_dynamic_shape_model() {
         unsafe {
-            let model_data = include_bytes!("../../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
+            let model_data = include_bytes!("../../ort-cpp/test-models/matmul_dynamic.onnx");
 
             let mut engine = Engine(null_mut());
             Result::from(create_inference_engine(

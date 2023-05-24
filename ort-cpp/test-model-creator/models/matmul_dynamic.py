@@ -1,6 +1,6 @@
 from onnx import helper, TensorProto, OperatorSetIdProto
 
-model_file = "../test-models/mat_mul_dynamic_shape.onnx"
+model_file = "../test-models/matmul_dynamic.onnx"
 
 input_names = ["A", "B"]
 input_dims = [("None1", "None2"), ("None2", "None3")]

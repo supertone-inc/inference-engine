@@ -116,7 +116,7 @@ TEST_CASE("OrtInferenceEngine with invalid model data")
 
 TEST_CASE("OrtInferenceEngine with dynamic-shape model")
 {
-    auto model = read_file("../ort-cpp/test-models/mat_mul_dynamic_shape.onnx");
+    auto model = read_file("../ort-cpp/test-models/matmul_dynamic.onnx");
 
     Engine engine;
     unwrap(create_inference_engine(model.data(), model.size(), &engine.ptr));
