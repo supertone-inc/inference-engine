@@ -1,0 +1,10 @@
+[package]
+name = "inference-engine-tflite"
+version.workspace = true
+publish.workspace = true
+edition.workspace = true
+
+[dependencies]
+inference-engine-core = { path = "../core" }
+inference-engine-tflite-sys = { path = "../tflite-sys" }
+thiserror = "1.0"
