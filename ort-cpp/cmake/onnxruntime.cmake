@@ -1,8 +1,8 @@
 set(ONNXRUNTIME_VERSION 1.12.1)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-    set(ONNXRUTNIME_OS linux)
-    set(ONNXRUNTIME_EXTENSION tgz)
+    set(ONNXRUNTIME_OS linux)
+    set(ONNXRUNTIME_EXTENSION .tgz)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
         set(ONNXRUNTIME_ARCH x64)
@@ -12,8 +12,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
         message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-    set(ONNXRUTNIME_OS osx)
-    set(ONNXRUNTIME_EXTENSION tgz)
+    set(ONNXRUNTIME_OS osx)
+    set(ONNXRUNTIME_EXTENSION .tgz)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
         set(ONNXRUNTIME_ARCH x86_64)
@@ -23,8 +23,8 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
         message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
     endif()
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-    set(ONNXRUTNIME_OS win)
-    set(ONNXRUNTIME_EXTENSION zip)
+    set(ONNXRUNTIME_OS win)
+    set(ONNXRUNTIME_EXTENSION .zip)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL AMD64)
         set(ONNXRUNTIME_ARCH x64)
@@ -38,7 +38,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
     onnxruntime
-    URL https://github.com/supertone-inc/onnxruntime-build/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-${ONNXRUTNIME_OS}-${ONNXRUNTIME_ARCH}-static-lib-${ONNXRUNTIME_VERSION}.${ONNXRUNTIME_EXTENSION}
+    URL https://github.com/supertone-inc/onnxruntime-build/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-${ONNXRUNTIME_OS}-${ONNXRUNTIME_ARCH}-static-lib-${ONNXRUNTIME_VERSION}${ONNXRUNTIME_EXTENSION}
 )
 FetchContent_MakeAvailable(onnxruntime)
 
