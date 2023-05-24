@@ -5,9 +5,9 @@ use std::ffi::{c_void, CStr};
 use std::ptr::{null, null_mut};
 use thiserror::Error;
 
-pub struct OrtInferenceEngine(*mut c_void);
+pub struct TfliteInferenceEngine(*mut c_void);
 
-impl OrtInferenceEngine {
+impl TfliteInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {
             let model_data = model_data.as_ref();
@@ -19,12 +19,12 @@ impl OrtInferenceEngine {
                 &mut model,
             ))?;
 
-            Ok(OrtInferenceEngine(model))
+            Ok(TfliteInferenceEngine(model))
         }
     }
 }
 
-impl InferenceEngine for OrtInferenceEngine {
+impl InferenceEngine for TfliteInferenceEngine {
     type Error = Error;
 
     fn input_count(&self) -> usize {
@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn with_invalid_model_data() {
-        match OrtInferenceEngine::new([]) {
+        match TfliteInferenceEngine::new([]) {
             Ok(_) => panic!("Expected an error."),
             Err(Error::SysError(message)) => {
                 assert_eq!(message, "failed to load model")
@@ -130,7 +130,7 @@ mod tests {
     #[test]
     fn with_fixed_shape_model() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
-        let mut engine = OrtInferenceEngine::new(model_data).unwrap();
+        let mut engine = TfliteInferenceEngine::new(model_data).unwrap();
 
         assert_eq!(engine.input_count(), 2);
         assert_eq!(engine.output_count(), 1);
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn with_reshaping_inputs() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
-        let mut engine = OrtInferenceEngine::new(model_data).unwrap();
+        let mut engine = TfliteInferenceEngine::new(model_data).unwrap();
 
         assert_eq!(engine.input_count(), 2);
         assert_eq!(engine.output_count(), 1);
