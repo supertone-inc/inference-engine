@@ -144,9 +144,19 @@ public:
         return input_count;
     }
 
+    size_t get_output_count() const
+    {
+        return output_count;
+    }
+
     const std::vector<size_t> &get_input_shape(size_t index) const
     {
         return input_shapes[index];
+    }
+
+    const std::vector<size_t> &get_output_shape(size_t index) const
+    {
+        return output_shapes[index];
     }
 
     void set_input_shape(size_t index, const std::vector<size_t> &shape)
@@ -175,24 +185,14 @@ public:
         }
     }
 
-    void set_input_data(size_t index, const float *data)
-    {
-        interpreter->input_tensor(index)->data.f = const_cast<float *>(data);
-    }
-
-    size_t get_output_count() const
-    {
-        return output_count;
-    }
-
-    const std::vector<size_t> &get_output_shape(size_t index) const
-    {
-        return output_shapes[index];
-    }
-
     void set_output_shape(size_t index, const std::vector<size_t> &shape)
     {
         throw std::runtime_error("not supported");
+    }
+
+    void set_input_data(size_t index, const float *data)
+    {
+        interpreter->input_tensor(index)->data.f = const_cast<float *>(data);
     }
 
     void set_output_data(size_t index, float *data)
@@ -213,9 +213,9 @@ private:
     std::unique_ptr<tflite::Interpreter> interpreter;
 
     size_t input_count;
-    std::vector<Shape> input_shapes;
-
     size_t output_count;
+
+    std::vector<Shape> input_shapes;
     std::vector<Shape> output_shapes;
 };
 
@@ -229,24 +229,14 @@ size_t TfliteInferenceEngine::get_input_count() const
     return impl->get_input_count();
 }
 
-const std::vector<size_t> &TfliteInferenceEngine::get_input_shape(size_t index) const
-{
-    return impl->get_input_shape(index);
-}
-
-void TfliteInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
-{
-    impl->set_input_shape(index, shape);
-}
-
-void TfliteInferenceEngine::set_input_data(size_t index, const float *data)
-{
-    impl->set_input_data(index, data);
-}
-
 size_t TfliteInferenceEngine::get_output_count() const
 {
     return impl->get_output_count();
+}
+
+const std::vector<size_t> &TfliteInferenceEngine::get_input_shape(size_t index) const
+{
+    return impl->get_input_shape(index);
 }
 
 const std::vector<size_t> &TfliteInferenceEngine::get_output_shape(size_t index) const
@@ -254,9 +244,19 @@ const std::vector<size_t> &TfliteInferenceEngine::get_output_shape(size_t index)
     return impl->get_output_shape(index);
 }
 
+void TfliteInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
+{
+    impl->set_input_shape(index, shape);
+}
+
 void TfliteInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_output_shape(index, shape);
+}
+
+void TfliteInferenceEngine::set_input_data(size_t index, const float *data)
+{
+    impl->set_input_data(index, data);
 }
 
 void TfliteInferenceEngine::set_output_data(size_t index, float *data)

@@ -24,10 +24,10 @@ TEST_CASE("TfliteInferenceEngine with fixed-shape model")
     auto engine = TfliteInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
+    REQUIRE(engine.get_output_count() == 1);
+
     REQUIRE(engine.get_input_shape(0) == std::vector<size_t>{2, 2});
     REQUIRE(engine.get_input_shape(1) == std::vector<size_t>{2, 2});
-
-    REQUIRE(engine.get_output_count() == 1);
     REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     std::vector<std::vector<float>> inputs{{1, 2, 3, 4}, {5, 6, 7, 8}};
@@ -53,10 +53,10 @@ TEST_CASE("TfliteInferenceEngine with reshaping inputs")
     auto engine = TfliteInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
+    REQUIRE(engine.get_output_count() == 1);
+
     REQUIRE(engine.get_input_shape(0) == std::vector<size_t>{2, 2});
     REQUIRE(engine.get_input_shape(1) == std::vector<size_t>{2, 2});
-
-    REQUIRE(engine.get_output_count() == 1);
     REQUIRE(engine.get_output_shape(0) == std::vector<size_t>{2, 2});
 
     engine.set_input_shape(0, {2, 1});

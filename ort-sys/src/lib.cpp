@@ -53,9 +53,21 @@ size_t get_input_count(const void *engine)
     return static_cast<const InferenceEngine *>(engine)->get_input_count();
 }
 
+size_t get_output_count(const void *engine)
+{
+    return static_cast<const InferenceEngine *>(engine)->get_output_count();
+}
+
 void get_input_shape(const void *engine, size_t index, const size_t **shape_data, size_t *shape_size)
 {
     const auto &shape = static_cast<const InferenceEngine *>(engine)->get_input_shape(index);
+    *shape_data = shape.data();
+    *shape_size = shape.size();
+}
+
+void get_output_shape(const void *engine, size_t index, const size_t **shape_data, size_t *shape_size)
+{
+    const auto &shape = static_cast<const InferenceEngine *>(engine)->get_output_shape(index);
     *shape_data = shape.data();
     *shape_size = shape.size();
 }
@@ -74,11 +86,11 @@ ResultCode set_input_shape(void *engine, size_t index, const size_t *shape_data,
     }
 }
 
-ResultCode set_input_data(void *engine, size_t index, const float *data)
+ResultCode set_output_shape(void *engine, size_t index, const size_t *shape_data, size_t shape_size)
 {
     try
     {
-        static_cast<InferenceEngine *>(engine)->set_input_data(index, data);
+        static_cast<InferenceEngine *>(engine)->set_output_shape(index, {shape_data, shape_data + shape_size});
         return ResultCode::Ok;
     }
     catch (const std::exception &e)
@@ -88,23 +100,11 @@ ResultCode set_input_data(void *engine, size_t index, const float *data)
     }
 }
 
-size_t get_output_count(const void *engine)
-{
-    return static_cast<const InferenceEngine *>(engine)->get_output_count();
-}
-
-void get_output_shape(const void *engine, size_t index, const size_t **shape_data, size_t *shape_size)
-{
-    const auto &shape = static_cast<const InferenceEngine *>(engine)->get_output_shape(index);
-    *shape_data = shape.data();
-    *shape_size = shape.size();
-}
-
-ResultCode set_output_shape(void *engine, size_t index, const size_t *shape_data, size_t shape_size)
+ResultCode set_input_data(void *engine, size_t index, const float *data)
 {
     try
     {
-        static_cast<InferenceEngine *>(engine)->set_output_shape(index, {shape_data, shape_data + shape_size});
+        static_cast<InferenceEngine *>(engine)->set_input_data(index, data);
         return ResultCode::Ok;
     }
     catch (const std::exception &e)

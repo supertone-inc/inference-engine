@@ -115,9 +115,19 @@ public:
         return input_count;
     }
 
+    size_t get_output_count() const
+    {
+        return output_count;
+    }
+
     const std::vector<size_t> &get_input_shape(size_t index) const
     {
         return input_shapes[index];
+    }
+
+    const std::vector<size_t> &get_output_shape(size_t index) const
+    {
+        return output_shapes[index];
     }
 
     void set_input_shape(size_t index, const std::vector<size_t> &shape)
@@ -132,27 +142,6 @@ public:
         );
     }
 
-    void set_input_data(size_t index, const float *data)
-    {
-        input_values[index] = Ort::Value::CreateTensor<float>(
-            memory_info,
-            const_cast<float *>(data),
-            input_shapes[index].get_element_count(),
-            reinterpret_cast<const int64_t *>(input_shapes[index].data()),
-            input_shapes[index].size()
-        );
-    }
-
-    size_t get_output_count() const
-    {
-        return output_count;
-    }
-
-    const std::vector<size_t> &get_output_shape(size_t index) const
-    {
-        return output_shapes[index];
-    }
-
     void set_output_shape(size_t index, const std::vector<size_t> &shape)
     {
         output_shapes[index] = shape;
@@ -162,6 +151,17 @@ public:
             output_shapes[index].get_element_count(),
             reinterpret_cast<const int64_t *>(output_shapes[index].data()),
             output_shapes[index].size()
+        );
+    }
+
+    void set_input_data(size_t index, const float *data)
+    {
+        input_values[index] = Ort::Value::CreateTensor<float>(
+            memory_info,
+            const_cast<float *>(data),
+            input_shapes[index].get_element_count(),
+            reinterpret_cast<const int64_t *>(input_shapes[index].data()),
+            input_shapes[index].size()
         );
     }
 
@@ -197,13 +197,15 @@ private:
     const Ort::RunOptions run_options;
 
     const size_t input_count;
-    std::vector<const char *> input_names;
-    std::vector<Shape> input_shapes;
-    std::vector<Ort::Value> input_values;
-
     const size_t output_count;
+
+    std::vector<const char *> input_names;
     std::vector<const char *> output_names;
+
+    std::vector<Shape> input_shapes;
     std::vector<Shape> output_shapes;
+
+    std::vector<Ort::Value> input_values;
     std::vector<Ort::Value> output_values;
 };
 
@@ -217,24 +219,14 @@ size_t OrtInferenceEngine::get_input_count() const
     return impl->get_input_count();
 }
 
-const std::vector<size_t> &OrtInferenceEngine::get_input_shape(size_t index) const
-{
-    return impl->get_input_shape(index);
-}
-
-void OrtInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
-{
-    impl->set_input_shape(index, shape);
-}
-
-void OrtInferenceEngine::set_input_data(size_t index, const float *data)
-{
-    impl->set_input_data(index, data);
-}
-
 size_t OrtInferenceEngine::get_output_count() const
 {
     return impl->get_output_count();
+}
+
+const std::vector<size_t> &OrtInferenceEngine::get_input_shape(size_t index) const
+{
+    return impl->get_input_shape(index);
 }
 
 const std::vector<size_t> &OrtInferenceEngine::get_output_shape(size_t index) const
@@ -242,9 +234,19 @@ const std::vector<size_t> &OrtInferenceEngine::get_output_shape(size_t index) co
     return impl->get_output_shape(index);
 }
 
+void OrtInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
+{
+    impl->set_input_shape(index, shape);
+}
+
 void OrtInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_output_shape(index, shape);
+}
+
+void OrtInferenceEngine::set_input_data(size_t index, const float *data)
+{
+    impl->set_input_data(index, data);
 }
 
 void OrtInferenceEngine::set_output_data(size_t index, float *data)

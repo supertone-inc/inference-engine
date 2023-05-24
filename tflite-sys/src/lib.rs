@@ -73,6 +73,7 @@ mod tests {
 
             assert_eq!(get_input_count(engine.0), 2);
             assert_eq!(get_output_count(engine.0), 1);
+
             assert_eq!(get_input_shapes(engine.0), [[2, 2], [2, 2]]);
             assert_eq!(get_output_shapes(engine.0), [[2, 2]]);
 
@@ -102,6 +103,17 @@ mod tests {
         input_shapes
     }
 
+    unsafe fn get_output_shapes(engine: *const c_void) -> Vec<Vec<usize>> {
+        let mut output_shapes = vec![];
+        for i in 0..get_output_count(engine) {
+            let mut data = null();
+            let mut size = 0;
+            get_output_shape(engine, i, &mut data, &mut size);
+            output_shapes.push(std::slice::from_raw_parts(data, size).into());
+        }
+        output_shapes
+    }
+
     unsafe fn set_input_shapes(engine: *mut c_void, shapes: &[&[usize]]) {
         for i in 0..get_input_count(engine) {
             Result::from(set_input_shape(
@@ -118,17 +130,6 @@ mod tests {
         for i in 0..get_input_count(engine) {
             Result::from(super::set_input_data(engine, i, data[i].as_ptr())).unwrap();
         }
-    }
-
-    unsafe fn get_output_shapes(engine: *const c_void) -> Vec<Vec<usize>> {
-        let mut output_shapes = vec![];
-        for i in 0..get_output_count(engine) {
-            let mut data = null();
-            let mut size = 0;
-            get_output_shape(engine, i, &mut data, &mut size);
-            output_shapes.push(std::slice::from_raw_parts(data, size).into());
-        }
-        output_shapes
     }
 
     unsafe fn set_output_data(engine: *mut c_void, data: &mut [&mut [f32]]) {

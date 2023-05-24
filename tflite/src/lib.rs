@@ -31,11 +31,24 @@ impl InferenceEngine for OrtInferenceEngine {
         unsafe { sys::get_input_count(self.0) }
     }
 
+    fn output_count(&self) -> usize {
+        unsafe { sys::get_output_count(self.0) }
+    }
+
     fn input_shape(&self, index: usize) -> &[usize] {
         unsafe {
             let mut data = null();
             let mut size = 0;
             sys::get_input_shape(self.0, index, &mut data, &mut size);
+            std::slice::from_raw_parts(data, size)
+        }
+    }
+
+    fn output_shape(&self, index: usize) -> &[usize] {
+        unsafe {
+            let mut data = null();
+            let mut size = 0;
+            sys::get_output_shape(self.0, index, &mut data, &mut size);
             std::slice::from_raw_parts(data, size)
         }
     }
@@ -52,23 +65,6 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
-    }
-
-    fn output_count(&self) -> usize {
-        unsafe { sys::get_output_count(self.0) }
-    }
-
-    fn output_shape(&self, index: usize) -> &[usize] {
-        unsafe {
-            let mut data = null();
-            let mut size = 0;
-            sys::get_output_shape(self.0, index, &mut data, &mut size);
-            std::slice::from_raw_parts(data, size)
-        }
-    }
-
     fn set_output_shape(&mut self, index: usize, shape: impl AsRef<[usize]>) -> Result<()> {
         unsafe {
             let shape = shape.as_ref();
@@ -79,6 +75,10 @@ impl InferenceEngine for OrtInferenceEngine {
                 shape.len(),
             ))
         }
+    }
+
+    fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
+        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
     }
 
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
@@ -131,10 +131,12 @@ mod tests {
     fn with_fixed_shape_model() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
+
         assert_eq!(engine.input_count(), 2);
+        assert_eq!(engine.output_count(), 1);
+
         assert_eq!(engine.input_shape(0), [2, 2]);
         assert_eq!(engine.input_shape(1), [2, 2]);
-        assert_eq!(engine.output_count(), 1);
         assert_eq!(engine.output_shape(0), [2, 2]);
 
         let input_data = [[1., 2., 3., 4.], [5., 6., 7., 8.]];
@@ -152,8 +154,10 @@ mod tests {
     fn with_reshaping_inputs() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
+
         assert_eq!(engine.input_count(), 2);
         assert_eq!(engine.output_count(), 1);
+
         assert_eq!(engine.input_shape(0), [2, 2]);
         assert_eq!(engine.input_shape(1), [2, 2]);
         assert_eq!(engine.output_shape(0), [2, 2]);
