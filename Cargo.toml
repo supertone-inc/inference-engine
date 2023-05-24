@@ -12,7 +12,14 @@ version.workspace = true
 publish.workspace = true
 edition.workspace = true
 
+[features]
+ort = ["inference-engine-ort"]
+tflite = ["inference-engine-tflite"]
+
 [dependencies]
+inference-engine-core = { path = "core" }
+inference-engine-ort = { path = "ort", optional = true }
+inference-engine-tflite = { path = "tflite", optional = true }
 
 [dev-dependencies.cargo-husky]
 version = "1"

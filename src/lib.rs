@@ -1,14 +1,7 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+pub use inference_engine_core::*;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[cfg(feature = "ort")]
+pub use inference_engine_ort as ort;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+#[cfg(feature = "tflite")]
+pub use inference_engine_tflite as tflite;
