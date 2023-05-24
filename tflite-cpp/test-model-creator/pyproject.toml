@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "test-model-creator"
+version = "0.0.0"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.8,<3.12"
+tensorflow = { version = "^2.12.0", markers = "sys_platform != 'darwin'" }
+tensorflow-macos = { version = "^2.12.0", markers = "sys_platform == 'darwin'" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
