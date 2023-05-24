@@ -9,7 +9,7 @@ add_library(${PROJECT_NAME} STATIC src/lib.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-add_subdirectory(../ort-cpp ${CMAKE_CURRENT_BINARY_DIR}/ort-cpp)
+add_subdirectory(../ort-cpp ort-cpp)
 target_link_libraries(${PROJECT_NAME} PUBLIC inference-engine-ort)
 
 if(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS)

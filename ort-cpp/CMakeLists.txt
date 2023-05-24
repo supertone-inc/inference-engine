@@ -9,10 +9,10 @@ add_library(${PROJECT_NAME} STATIC src/OrtInferenceEngine.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/inference-engine-core.cmake)
+include(cmake/inference-engine-core.cmake)
 target_link_libraries(${PROJECT_NAME} PUBLIC inference-engine-core)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/onnxruntime.cmake)
+include(cmake/onnxruntime.cmake)
 target_link_libraries(${PROJECT_NAME} PUBLIC onnxruntime)
 
 if(INFERENCE_ENGINE_ORT_RUN_TESTS)
