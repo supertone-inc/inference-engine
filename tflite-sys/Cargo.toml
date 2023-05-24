@@ -3,6 +3,7 @@ name = "inference-engine-tflite-sys"
 version.workspace = true
 publish.workspace = true
 edition.workspace = true
+links = "inference-engine-tflite-sys"
 
 [dependencies]
 

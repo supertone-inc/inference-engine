@@ -3,6 +3,7 @@ name = "inference-engine-ort-sys"
 version.workspace = true
 publish.workspace = true
 edition.workspace = true
+links = "inference-engine-ort-sys"
 
 [dependencies]
 

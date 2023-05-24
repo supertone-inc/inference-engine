@@ -3,6 +3,7 @@ name = "inference-engine-tflite"
 version.workspace = true
 publish.workspace = true
 edition.workspace = true
+links = "inference_engine_tflite"
 
 [dependencies]
 inference-engine-core = { path = "../core" }

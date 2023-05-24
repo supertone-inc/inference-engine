@@ -35,6 +35,8 @@ fn build_cpp() {
 
     const LIB_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/lib");
 
+    println!("cargo:LIB_DIR={LIB_DIR}");
+
     println!("cargo:rustc-link-search={LIB_DIR}");
     println!("cargo:rustc-link-lib=inference_engine_tflite_sys");
     println!("cargo:rustc-link-lib=inference_engine_tflite");

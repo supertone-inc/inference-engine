@@ -11,6 +11,7 @@ name = "inference-engine"
 version.workspace = true
 publish.workspace = true
 edition.workspace = true
+links = "inference_engine"
 
 [features]
 ort = ["inference-engine-ort"]
