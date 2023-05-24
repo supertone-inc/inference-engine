@@ -2,30 +2,32 @@ cmake_minimum_required(VERSION 3.24)
 project(inference_engine_ort)
 
 option(INFERENCE_ENGINE_ORT_RUN_TESTS "Run tests" OFF)
+set(INFERENCE_ENGINE_ORT_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib CACHE STRING "")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 
-add_library(ort STATIC src/OrtInferenceEngine.cpp)
-set_target_properties(ort PROPERTIES
+add_library(inference_engine_ort STATIC src/OrtInferenceEngine.cpp)
+set_target_properties(inference_engine_ort PROPERTIES
     CXX_STANDARD 17
-    ARCHIVE_OUTPUT_DIRECTORY thin
+    ARCHIVE_OUTPUT_DIRECTORY ${INFERENCE_ENGINE_ORT_LIB_DIR}
 )
-target_include_directories(ort PUBLIC include)
+target_include_directories(inference_engine_ort PUBLIC include)
 
 include(cmake/inference-engine-core.cmake)
-target_link_libraries(ort PUBLIC inference-engine-core)
+target_link_libraries(inference_engine_ort PUBLIC inference-engine-core)
 
 include(cmake/onnxruntime.cmake)
-target_link_libraries(ort PUBLIC onnxruntime)
+target_link_libraries(inference_engine_ort PUBLIC onnxruntime)
 
-include(cmake/bundle_static_library.cmake)
-bundle_static_library(inference_engine_ort ort)
+add_custom_command(
+    TARGET inference_engine_ort POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${onnxruntime_SOURCE_DIR}/lib/*" "${INFERENCE_ENGINE_ORT_LIB_DIR}"
+)
 
 if(INFERENCE_ENGINE_ORT_RUN_TESTS)
     add_executable(test_inference_engine_ort src/OrtInferenceEngine.test.cpp)
     set_target_properties(test_inference_engine_ort PROPERTIES CXX_STANDARD 17)
-    target_include_directories(test_inference_engine_ort PUBLIC include ../core-cpp/include)
-    target_link_libraries(test_inference_engine_ort ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}inference_engine_ort${CMAKE_STATIC_LIBRARY_SUFFIX})
+    target_link_libraries(test_inference_engine_ort inference_engine_ort)
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
     include(cmake/catch2.cmake)
