@@ -102,7 +102,7 @@ public:
             throw std::runtime_error("failed to load model");
         }
 
-        tflite::ops::builtin::BuiltinOpResolverWithoutDefaultDelegates op_resolver;
+        tflite::ops::builtin::BuiltinOpResolver op_resolver;
         tflite::InterpreterBuilder builder(*model, op_resolver);
 
         if (builder.SetNumThreads(1) != kTfLiteOk)
