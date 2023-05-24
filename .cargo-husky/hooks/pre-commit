@@ -9,7 +9,7 @@ for file in $(git diff --name-only --staged); do
 
     case "$file" in
     *.rs)
-        rustfmt --edition 2021 "$file"
+        rustfmt "$file"
         ;;
     *.c | *.cpp | *.cxx | *.h | *.hpp | *.hxx)
         clang-format -i "$file"
