@@ -35,14 +35,7 @@ fn build_cpp() {
 
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}");
     println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/{CMAKE_CONFIG}");
-    println!("cargo:rustc-link-lib=inference-engine-ort-sys");
-
-    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/ort-cpp");
-    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/ort-cpp/{CMAKE_CONFIG}");
-    println!("cargo:rustc-link-lib=inference-engine-ort");
-
-    println!("cargo:rustc-link-search={CMAKE_BUILD_DIR}/_deps/onnxruntime-src/lib");
-    println!("cargo:rustc-link-lib=onnxruntime");
+    println!("cargo:rustc-link-lib=inference_engine_ort_sys");
 
     #[cfg(target_os = "linux")]
     println!("cargo:rustc-link-lib=stdc++");

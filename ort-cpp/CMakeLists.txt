@@ -1,37 +1,44 @@
 cmake_minimum_required(VERSION 3.24)
-project(inference-engine-ort)
+project(inference_engine_ort)
 
 option(INFERENCE_ENGINE_ORT_RUN_TESTS "Run tests" OFF)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 
-add_library(${PROJECT_NAME} STATIC src/OrtInferenceEngine.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+add_library(ort STATIC src/OrtInferenceEngine.cpp)
+set_target_properties(ort PROPERTIES
+    CXX_STANDARD 17
+    ARCHIVE_OUTPUT_DIRECTORY thin
+)
+target_include_directories(ort PUBLIC include)
 
 include(cmake/inference-engine-core.cmake)
-target_link_libraries(${PROJECT_NAME} PUBLIC inference-engine-core)
+target_link_libraries(ort PUBLIC inference-engine-core)
 
 include(cmake/onnxruntime.cmake)
-target_link_libraries(${PROJECT_NAME} PUBLIC onnxruntime)
+target_link_libraries(ort PUBLIC onnxruntime)
+
+include(cmake/bundle_static_library.cmake)
+bundle_static_library(inference_engine_ort ort)
 
 if(INFERENCE_ENGINE_ORT_RUN_TESTS)
-    add_executable(${PROJECT_NAME}-test src/OrtInferenceEngine.test.cpp)
-    set_target_properties(${PROJECT_NAME}-test PROPERTIES CXX_STANDARD 17)
-    target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+    add_executable(test_inference_engine_ort src/OrtInferenceEngine.test.cpp)
+    set_target_properties(test_inference_engine_ort PROPERTIES CXX_STANDARD 17)
+    target_include_directories(test_inference_engine_ort PUBLIC include ../core-cpp/include)
+    target_link_libraries(test_inference_engine_ort ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}inference_engine_ort${CMAKE_STATIC_LIBRARY_SUFFIX})
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
     include(cmake/catch2.cmake)
-    target_link_libraries(${PROJECT_NAME}-test Catch2WithMain)
+    target_link_libraries(test_inference_engine_ort Catch2WithMain)
 
     if(APPLE)
-        target_link_libraries(${PROJECT_NAME}-test "-framework Foundation")
+        target_link_libraries(test_inference_engine_ort "-framework Foundation")
     endif()
 
     add_custom_target(run-tests
         ALL
-        COMMAND ${PROJECT_NAME}-test
-        DEPENDS ${PROJECT_NAME}-test
+        COMMAND test_inference_engine_ort
+        DEPENDS test_inference_engine_ort
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
