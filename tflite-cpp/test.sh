@@ -5,6 +5,7 @@ set -e
 CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR:=.}
 CMAKE_BUILD_DIR=${CMAKE_BUILD_DIR:=build}
 CMAKE_CONFIG=${CMAKE_CONFIG:=Debug}
+CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX:=.}
 
 cmake \
     -S $CMAKE_SOURCE_DIR \
@@ -17,3 +18,8 @@ cmake \
     --build $CMAKE_BUILD_DIR \
     --config $CMAKE_CONFIG \
     --parallel
+
+cmake \
+    --install $CMAKE_BUILD_DIR \
+    --prefix $CMAKE_INSTALL_PREFIX \
+    --config $CMAKE_CONFIG

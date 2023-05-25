@@ -9,6 +9,7 @@ fn build_cpp() {
 
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
+    const CMAKE_INSTALL_PREFIX: &str = formatcp!("{CMAKE_SOURCE_DIR}");
     const CMAKE_CONFIG: &str = if cfg!(debug_assertions) {
         "Debug"
     } else {
@@ -32,8 +33,15 @@ fn build_cpp() {
             --parallel"
     ))
     .unwrap();
+    exec::status(format!(
+        "cmake \
+            --install '{CMAKE_BUILD_DIR}' 
+            --prefix '{CMAKE_INSTALL_PREFIX}' \
+            --config {CMAKE_CONFIG}"
+    ))
+    .unwrap();
 
-    const LIB_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/lib");
+    const LIB_DIR: &str = formatcp!("{CMAKE_INSTALL_PREFIX}/lib");
 
     println!("cargo:LIB_DIR={LIB_DIR}");
 

@@ -2,19 +2,17 @@ cmake_minimum_required(VERSION 3.24)
 project(inference_engine_tflite_sys)
 
 option(INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS "Run tests" OFF)
-set(INFERENCE_ENGINE_TFLITE_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib CACHE STRING "")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 
 add_library(inference_engine_tflite_sys STATIC src/lib.cpp)
-set_target_properties(inference_engine_tflite_sys PROPERTIES
-    CXX_STANDARD 17
-    ARCHIVE_OUTPUT_DIRECTORY ${INFERENCE_ENGINE_TFLITE_LIB_DIR}
-)
+set_target_properties(inference_engine_tflite_sys PROPERTIES CXX_STANDARD 17)
 target_include_directories(inference_engine_tflite_sys PUBLIC include)
 
 add_subdirectory(../tflite-cpp tflite-cpp)
 target_link_libraries(inference_engine_tflite_sys PUBLIC inference_engine_tflite)
+
+install(TARGETS inference_engine_tflite_sys)
 
 if(INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS)
     add_executable(test_inference_engine_tflite_sys src/lib.test.cpp)
