@@ -77,12 +77,18 @@ impl InferenceEngine for TfliteInferenceEngine {
         }
     }
 
-    fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
+    fn set_input_data(&mut self, index: usize, data: &impl AsRef<[f32]>) -> Result<()> {
+        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ref().as_ptr())) }
     }
 
-    fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_output_data(self.0, index, data.as_mut_ptr())) }
+    fn set_output_data(&mut self, index: usize, data: &mut impl AsMut<[f32]>) -> Result<()> {
+        unsafe {
+            Result::from(sys::set_output_data(
+                self.0,
+                index,
+                data.as_mut().as_mut_ptr(),
+            ))
+        }
     }
 
     fn run(&mut self) -> Result<()> {
