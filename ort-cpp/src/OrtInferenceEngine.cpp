@@ -88,9 +88,7 @@ public:
             input_names.push_back(session.GetInputName(i, allocator));
             input_shapes.push_back(session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
             input_values.push_back(Ort::Value::CreateTensor<float>(
-                memory_info,
-                nullptr,
-                input_shapes[i].get_element_count(),
+                allocator,
                 reinterpret_cast<const int64_t *>(input_shapes[i].data()),
                 input_shapes[i].size()
             ));
@@ -101,9 +99,7 @@ public:
             output_names.push_back(session.GetOutputName(i, allocator));
             output_shapes.push_back(session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
             output_values.push_back(Ort::Value::CreateTensor<float>(
-                memory_info,
-                nullptr,
-                output_shapes[i].get_element_count(),
+                allocator,
                 reinterpret_cast<const int64_t *>(output_shapes[i].data()),
                 output_shapes[i].size()
             ));
@@ -134,9 +130,7 @@ public:
     {
         input_shapes[index] = shape;
         input_values[index] = Ort::Value::CreateTensor<float>(
-            memory_info,
-            input_values[index].GetTensorMutableData<float>(),
-            input_shapes[index].get_element_count(),
+            allocator,
             reinterpret_cast<const int64_t *>(input_shapes[index].data()),
             input_shapes[index].size()
         );
@@ -146,9 +140,7 @@ public:
     {
         output_shapes[index] = shape;
         output_values[index] = Ort::Value::CreateTensor<float>(
-            memory_info,
-            output_values[index].GetTensorMutableData<float>(),
-            output_shapes[index].get_element_count(),
+            allocator,
             reinterpret_cast<const int64_t *>(output_shapes[index].data()),
             output_shapes[index].size()
         );
