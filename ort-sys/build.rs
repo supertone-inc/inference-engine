@@ -73,14 +73,8 @@ fn generate_bindings() {
 
     bindgen::Builder::default()
         .header(header_path.display().to_string())
-        .allowlist_function("inference_engine::.*")
-        .clang_args([
-            "-x",
-            "c++",
-            "-std=c++17",
-            "-I../ort-cpp/include",
-            "-I../core-cpp/include",
-        ])
+        .allowlist_file(header_path.display().to_string())
+        .clang_args(["-x", "c++", "-std=c++17"])
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
         })
