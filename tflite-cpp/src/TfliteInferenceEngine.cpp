@@ -1,4 +1,4 @@
-#include "inference-engine/TfliteInferenceEngine.hpp"
+#include "inference_engine/TfliteInferenceEngine.hpp"
 
 #include <tensorflow/lite/interpreter.h>
 #include <tensorflow/lite/kernels/register.h>

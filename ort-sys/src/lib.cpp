@@ -1,6 +1,6 @@
 #include "lib.hpp"
 
-#include "inference-engine/OrtInferenceEngine.hpp"
+#include "inference_engine/OrtInferenceEngine.hpp"
 
 #include <string>
 

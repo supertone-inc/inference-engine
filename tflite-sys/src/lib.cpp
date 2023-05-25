@@ -1,6 +1,6 @@
 #include "lib.hpp"
 
-#include "inference-engine/TfliteInferenceEngine.hpp"
+#include "inference_engine/TfliteInferenceEngine.hpp"
 
 #include <string>
 

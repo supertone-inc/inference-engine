@@ -1,4 +1,4 @@
-#include "inference-engine/OrtInferenceEngine.hpp"
+#include "inference_engine/OrtInferenceEngine.hpp"
 
 #include <onnxruntime_cxx_api.h>
 #include <vector>

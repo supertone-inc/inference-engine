@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inference-engine/InferenceEngine.hpp"
+#include "inference_engine/InferenceEngine.hpp"
 
 #include <memory>
 #include <vector>

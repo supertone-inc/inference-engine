@@ -1,4 +1,4 @@
-#include "inference-engine/OrtInferenceEngine.hpp"
+#include "inference_engine/OrtInferenceEngine.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
