@@ -9,8 +9,8 @@ add_library(inference_engine_ort STATIC src/OrtInferenceEngine.cpp)
 set_target_properties(inference_engine_ort PROPERTIES CXX_STANDARD 17)
 target_include_directories(inference_engine_ort PUBLIC include)
 
-include(cmake/inference-engine-core.cmake)
-target_link_libraries(inference_engine_ort PUBLIC inference-engine-core)
+include(cmake/inference_engine_core.cmake)
+target_link_libraries(inference_engine_ort PUBLIC inference_engine_core)
 
 include(cmake/onnxruntime.cmake)
 target_link_libraries(inference_engine_ort PUBLIC onnxruntime)
