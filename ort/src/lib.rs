@@ -50,9 +50,8 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn set_input_shape(&mut self, index: usize, shape: impl AsRef<[usize]>) -> Result<()> {
+    fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
-            let shape = shape.as_ref();
             Result::from(sys::set_input_shape(
                 self.0,
                 index,
@@ -62,9 +61,8 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn set_output_shape(&mut self, index: usize, shape: impl AsRef<[usize]>) -> Result<()> {
+    fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
-            let shape = shape.as_ref();
             Result::from(sys::set_output_shape(
                 self.0,
                 index,
@@ -90,18 +88,12 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn set_input_data(&mut self, index: usize, data: &impl AsRef<[f32]>) -> Result<()> {
-        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ref().as_ptr())) }
+    fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
+        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
     }
 
-    fn set_output_data(&mut self, index: usize, data: &mut impl AsMut<[f32]>) -> Result<()> {
-        unsafe {
-            Result::from(sys::set_output_data(
-                self.0,
-                index,
-                data.as_mut().as_mut_ptr(),
-            ))
-        }
+    fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
+        unsafe { Result::from(sys::set_output_data(self.0, index, data.as_mut_ptr())) }
     }
 
     fn run(&mut self) -> Result<()> {
@@ -168,12 +160,12 @@ mod tests {
         assert_eq!(engine.input_shape(1), [0, 0]);
         assert_eq!(engine.output_shape(0), [0, 0]);
 
-        engine.set_input_shape(0, [2, 1]).unwrap();
-        engine.set_input_shape(1, [1, 2]).unwrap();
+        engine.set_input_shape(0, &[2, 1]).unwrap();
+        engine.set_input_shape(1, &[1, 2]).unwrap();
         assert_eq!(engine.input_shape(0), [2, 1]);
         assert_eq!(engine.input_shape(1), [1, 2]);
 
-        engine.set_output_shape(0, [2, 2]).unwrap();
+        engine.set_output_shape(0, &[2, 2]).unwrap();
         assert_eq!(engine.output_shape(0), [2, 2]);
 
         let input_data = [[1., 2.], [3., 4.]];
