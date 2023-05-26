@@ -10,8 +10,8 @@ pub trait InferenceEngine {
     fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error>;
     fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error>;
 
-    fn get_input_data(&mut self, index: usize) -> &mut [f32];
-    fn get_output_data(&self, index: usize) -> &[f32];
+    fn input_data(&mut self, index: usize) -> &mut [f32];
+    fn output_data(&self, index: usize) -> &[f32];
 
     fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<(), Error>;
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<(), Error>;

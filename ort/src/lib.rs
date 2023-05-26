@@ -72,7 +72,7 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn get_input_data(&mut self, index: usize) -> &mut [f32] {
+    fn input_data(&mut self, index: usize) -> &mut [f32] {
         unsafe {
             let data = sys::get_input_data(self.0, index);
             let size = self.input_shape(index).iter().product();
@@ -80,7 +80,7 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
-    fn get_output_data(&self, index: usize) -> &[f32] {
+    fn output_data(&self, index: usize) -> &[f32] {
         unsafe {
             let data = sys::get_output_data(self.0, index);
             let size = self.output_shape(index).iter().product();
@@ -133,7 +133,7 @@ mod tests {
         for i in 0..engine.input_count() {
             engine.set_input_data(i, &input_data[i]).unwrap();
             assert_eq!(
-                engine.get_input_data(i).as_mut_ptr(),
+                engine.input_data(i).as_mut_ptr(),
                 input_data[i].as_ptr() as _
             );
         }
@@ -141,7 +141,7 @@ mod tests {
         let mut output_data = [[0., 0., 0., 0.]];
         for i in 0..engine.output_count() {
             engine.set_output_data(i, &mut output_data[i]).unwrap();
-            assert_eq!(engine.get_output_data(i).as_ptr(), output_data[i].as_ptr());
+            assert_eq!(engine.output_data(i).as_ptr(), output_data[i].as_ptr());
         }
 
         engine.run().unwrap();
@@ -172,7 +172,7 @@ mod tests {
         for i in 0..engine.input_count() {
             engine.set_input_data(i, &input_data[i]).unwrap();
             assert_eq!(
-                engine.get_input_data(i).as_mut_ptr(),
+                engine.input_data(i).as_mut_ptr(),
                 input_data[i].as_ptr() as _
             );
         }
@@ -180,7 +180,7 @@ mod tests {
         let mut output_data = [[0., 0., 0., 0.]];
         for i in 0..engine.output_count() {
             engine.set_output_data(i, &mut output_data[i]).unwrap();
-            assert_eq!(engine.get_output_data(i).as_ptr(), output_data[i].as_ptr());
+            assert_eq!(engine.output_data(i).as_ptr(), output_data[i].as_ptr());
         }
 
         engine.run().unwrap();
