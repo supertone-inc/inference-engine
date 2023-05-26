@@ -6,7 +6,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Linux)
 
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL x86_64)
         set(ONNXRUNTIME_ARCH x64)
-    elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL arm64)
+    elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL aarch64)
         set(ONNXRUNTIME_ARCH aarch64)
     else()
         message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
