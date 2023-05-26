@@ -27,7 +27,7 @@ if(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS)
         target_link_libraries(test_inference_engine_ort_sys "-framework Foundation")
     endif()
 
-    add_custom_target(run-tests
+    add_custom_target(run_test_inference_engine_ort_sys
         ALL
         COMMAND test_inference_engine_ort_sys
         DEPENDS test_inference_engine_ort_sys

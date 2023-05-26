@@ -100,6 +100,11 @@ mod tests {
         }
     }
 
+    #[test]
+    fn cpp() {
+        execute_command::status("bash -c ./test.sh").unwrap();
+    }
+
     unsafe fn get_input_shapes(engine: *const c_void) -> Vec<Vec<usize>> {
         let mut input_shapes = vec![];
         for i in 0..get_input_count(engine) {

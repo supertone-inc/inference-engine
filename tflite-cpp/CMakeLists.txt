@@ -27,7 +27,7 @@ if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
     include(cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_tflite Catch2WithMain)
 
-    add_custom_target(run-tests
+    add_custom_target(run_test_inference_engine_tflite
         ALL
         COMMAND test_inference_engine_tflite
         DEPENDS test_inference_engine_tflite
