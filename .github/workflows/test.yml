@@ -70,7 +70,7 @@ jobs:
         if: runner.os == 'macOS' && steps.setup-python.outcome	== 'failure'
         run: |
           brew install python@${{ env.PYTHON_VERSION }}
-          echo $(which python) >> $GITHUB_PATH
+          echo /opt/homebrew/opt/python@${{ env.PYTHON_VERSION }}/libexec/bin >> $GITHUB_PATH
 
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v8
