@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn cpp() {
-        execute_command::status("bash ./test.sh").unwrap();
+        execute_command::status("./test.sh").unwrap();
     }
 
     unsafe fn get_input_shapes(engine: *const c_void) -> Vec<Vec<usize>> {
