@@ -71,22 +71,6 @@ void set_output_shapes(void *engine, const std::vector<std::vector<size_t>> &sha
     }
 }
 
-void set_input_data(void *engine, const std::vector<std::vector<float>> &data)
-{
-    for (auto i = 0; i < get_input_count(engine); i++)
-    {
-        unwrap(set_input_data(engine, i, data[i].data()));
-    }
-}
-
-void set_output_data(void *engine, std::vector<std::vector<float>> &data)
-{
-    for (auto i = 0; i < get_output_count(engine); ++i)
-    {
-        unwrap(set_output_data(engine, i, data[i].data()));
-    }
-}
-
 struct Engine
 {
     void *ptr = nullptr;
@@ -135,10 +119,18 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     REQUIRE(get_output_shapes(engine.ptr) == std::vector<std::vector<size_t>>{{2, 2}});
 
     std::vector<std::vector<float>> inputs{{1, 2}, {3, 4}};
-    set_input_data(engine.ptr, inputs);
+    for (auto i = 0; i < get_input_count(engine.ptr); i++)
+    {
+        unwrap(set_input_data(engine.ptr, i, inputs[i].data()));
+        REQUIRE(get_input_data(engine.ptr, i) == inputs[i].data());
+    }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
-    set_output_data(engine.ptr, outputs);
+    for (auto i = 0; i < get_output_count(engine.ptr); i++)
+    {
+        unwrap(set_output_data(engine.ptr, i, outputs[i].data()));
+        REQUIRE(get_output_data(engine.ptr, i) == outputs[i].data());
+    }
 
     unwrap(run(engine.ptr));
     REQUIRE(outputs == std::vector<std::vector<float>>{{{3, 4, 6, 8}}});

@@ -146,6 +146,16 @@ public:
         );
     }
 
+    float *get_input_data(size_t index)
+    {
+        return input_values[index].GetTensorMutableData<float>();
+    }
+
+    const float *get_output_data(size_t index) const
+    {
+        return output_values[index].GetTensorData<float>();
+    }
+
     void set_input_data(size_t index, const float *data)
     {
         input_values[index] = Ort::Value::CreateTensor<float>(
@@ -234,6 +244,16 @@ void OrtInferenceEngine::set_input_shape(size_t index, const std::vector<size_t>
 void OrtInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_output_shape(index, shape);
+}
+
+float *OrtInferenceEngine::get_input_data(size_t index)
+{
+    return impl->get_input_data(index);
+}
+
+const float *OrtInferenceEngine::get_output_data(size_t index) const
+{
+    return impl->get_output_data(index);
 }
 
 void OrtInferenceEngine::set_input_data(size_t index, const float *data)

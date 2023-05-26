@@ -82,10 +82,16 @@ mod tests {
             assert_eq!(get_output_shapes(engine.0), [[2, 2]]);
 
             let input_data = [[1., 2.], [3., 4.]];
-            set_input_data(engine.0, &[&input_data[0], &input_data[1]]);
+            for i in 0..get_input_count(engine.0) {
+                Result::from(set_input_data(engine.0, i, input_data[i].as_ptr())).unwrap();
+                assert_eq!(get_input_data(engine.0, i), input_data[i].as_ptr() as _);
+            }
 
             let mut output_data = [[0., 0., 0., 0.]];
-            set_output_data(engine.0, &mut [&mut output_data[0]]);
+            for i in 0..get_output_count(engine.0) {
+                Result::from(set_output_data(engine.0, i, output_data[i].as_mut_ptr())).unwrap();
+                assert_eq!(get_output_data(engine.0, i), output_data[i].as_ptr() as _);
+            }
 
             Result::from(run(engine.0)).unwrap();
             assert_eq!(output_data, [[3., 4., 6., 8.]]);
@@ -123,18 +129,6 @@ mod tests {
                 shapes[i].len(),
             ))
             .unwrap();
-        }
-    }
-
-    unsafe fn set_input_data(engine: *mut c_void, data: &[&[f32]]) {
-        for i in 0..get_input_count(engine) {
-            Result::from(super::set_input_data(engine, i, data[i].as_ptr())).unwrap();
-        }
-    }
-
-    unsafe fn set_output_data(engine: *mut c_void, data: &mut [&mut [f32]]) {
-        for i in 0..get_output_count(engine) {
-            Result::from(super::set_output_data(engine, i, data[i].as_mut_ptr())).unwrap();
         }
     }
 }

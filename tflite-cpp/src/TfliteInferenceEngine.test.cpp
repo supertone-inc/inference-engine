@@ -34,12 +34,14 @@ TEST_CASE("TfliteInferenceEngine with fixed-shape model")
     for (auto i = 0; i < engine.get_input_count(); i++)
     {
         engine.set_input_data(i, inputs[i].data());
+        REQUIRE(engine.get_input_data(i) == inputs[i].data());
     }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
     for (auto i = 0; i < engine.get_output_count(); i++)
     {
         engine.set_output_data(i, outputs[i].data());
+        REQUIRE(engine.get_output_data(i) == outputs[i].data());
     }
 
     engine.run();
@@ -69,12 +71,14 @@ TEST_CASE("TfliteInferenceEngine with reshaping inputs")
     for (auto i = 0; i < engine.get_input_count(); i++)
     {
         engine.set_input_data(i, inputs[i].data());
+        REQUIRE(engine.get_input_data(i) == inputs[i].data());
     }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
     for (auto i = 0; i < engine.get_output_count(); i++)
     {
         engine.set_output_data(i, outputs[i].data());
+        REQUIRE(engine.get_output_data(i) == outputs[i].data());
     }
 
     engine.run();

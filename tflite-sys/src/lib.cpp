@@ -100,6 +100,16 @@ ResultCode set_output_shape(void *engine, size_t index, const size_t *shape_data
     }
 }
 
+float *get_input_data(void *engine, size_t index)
+{
+    return static_cast<InferenceEngine *>(engine)->get_input_data(index);
+}
+
+const float *get_output_data(const void *engine, size_t index)
+{
+    return static_cast<const InferenceEngine *>(engine)->get_output_data(index);
+}
+
 ResultCode set_input_data(void *engine, size_t index, const float *data)
 {
     try

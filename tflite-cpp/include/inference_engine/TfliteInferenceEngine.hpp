@@ -21,6 +21,9 @@ public:
     void set_input_shape(size_t index, const std::vector<size_t> &shape) override;
     void set_output_shape(size_t index, const std::vector<size_t> &shape) override;
 
+    float *get_input_data(size_t index) override;
+    const float *get_output_data(size_t index) const override;
+
     void set_input_data(size_t index, const float *data) override;
     void set_output_data(size_t index, float *data) override;
 

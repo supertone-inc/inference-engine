@@ -26,6 +26,9 @@ void get_output_shape(const void *engine, size_t index, const size_t **shape_dat
 ResultCode set_input_shape(void *engine, size_t index, const size_t *shape_data, size_t shape_size);
 ResultCode set_output_shape(void *engine, size_t index, const size_t *shape_data, size_t shape_size);
 
+float *get_input_data(void *engine, size_t index);
+const float *get_output_data(const void *engine, size_t index);
+
 ResultCode set_input_data(void *engine, size_t index, const float *data);
 ResultCode set_output_data(void *engine, size_t index, float *data);
 

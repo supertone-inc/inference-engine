@@ -18,6 +18,9 @@ pub trait InferenceEngine {
         shape: impl AsRef<[usize]>,
     ) -> Result<(), Self::Error>;
 
+    fn get_input_data(&mut self, index: usize) -> &mut [f32];
+    fn get_output_data(&self, index: usize) -> &[f32];
+
     fn set_input_data(&mut self, index: usize, data: &impl AsRef<[f32]>)
         -> Result<(), Self::Error>;
     fn set_output_data(

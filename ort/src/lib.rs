@@ -77,6 +77,22 @@ impl InferenceEngine for OrtInferenceEngine {
         }
     }
 
+    fn get_input_data(&mut self, index: usize) -> &mut [f32] {
+        unsafe {
+            let data = sys::get_input_data(self.0, index);
+            let size = self.input_shape(index).iter().product();
+            std::slice::from_raw_parts_mut(data, size)
+        }
+    }
+
+    fn get_output_data(&self, index: usize) -> &[f32] {
+        unsafe {
+            let data = sys::get_output_data(self.0, index);
+            let size = self.output_shape(index).iter().product();
+            std::slice::from_raw_parts(data, size)
+        }
+    }
+
     fn set_input_data(&mut self, index: usize, data: &impl AsRef<[f32]>) -> Result<()> {
         unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ref().as_ptr())) }
     }
@@ -146,11 +162,19 @@ mod tests {
         assert_eq!(engine.output_shape(0), [2, 2]);
 
         let input_data = [[1., 2., 3., 4.], [5., 6., 7., 8.]];
-        engine.set_input_data(0, &input_data[0]).unwrap();
-        engine.set_input_data(1, &input_data[1]).unwrap();
+        for i in 0..engine.input_count() {
+            engine.set_input_data(i, &input_data[i]).unwrap();
+            assert_eq!(
+                engine.get_input_data(i).as_mut_ptr(),
+                input_data[i].as_ptr() as _
+            );
+        }
 
         let mut output_data = [[0., 0., 0., 0.]];
-        engine.set_output_data(0, &mut output_data[0]).unwrap();
+        for i in 0..engine.output_count() {
+            engine.set_output_data(i, &mut output_data[i]).unwrap();
+            assert_eq!(engine.get_output_data(i).as_ptr(), output_data[i].as_ptr());
+        }
 
         engine.run().unwrap();
         assert_eq!(output_data, [[19., 22., 43., 50.]]);
@@ -177,11 +201,19 @@ mod tests {
         assert_eq!(engine.output_shape(0), [2, 2]);
 
         let input_data = [[1., 2.], [3., 4.]];
-        engine.set_input_data(0, &input_data[0]).unwrap();
-        engine.set_input_data(1, &input_data[1]).unwrap();
+        for i in 0..engine.input_count() {
+            engine.set_input_data(i, &input_data[i]).unwrap();
+            assert_eq!(
+                engine.get_input_data(i).as_mut_ptr(),
+                input_data[i].as_ptr() as _
+            );
+        }
 
         let mut output_data = [[0., 0., 0., 0.]];
-        engine.set_output_data(0, &mut output_data[0]).unwrap();
+        for i in 0..engine.output_count() {
+            engine.set_output_data(i, &mut output_data[i]).unwrap();
+            assert_eq!(engine.get_output_data(i).as_ptr(), output_data[i].as_ptr());
+        }
 
         engine.run().unwrap();
         assert_eq!(output_data, [[3., 4., 6., 8.]]);

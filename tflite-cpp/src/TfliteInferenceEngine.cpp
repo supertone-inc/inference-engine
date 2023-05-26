@@ -190,6 +190,16 @@ public:
         throw std::runtime_error("not supported");
     }
 
+    float *get_input_data(size_t index)
+    {
+        return interpreter->typed_input_tensor<float>(index);
+    }
+
+    const float *get_output_data(size_t index) const
+    {
+        return interpreter->typed_output_tensor<float>(index);
+    }
+
     void set_input_data(size_t index, const float *data)
     {
         interpreter->input_tensor(index)->data.f = const_cast<float *>(data);
@@ -252,6 +262,16 @@ void TfliteInferenceEngine::set_input_shape(size_t index, const std::vector<size
 void TfliteInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_output_shape(index, shape);
+}
+
+float *TfliteInferenceEngine::get_input_data(size_t index)
+{
+    return impl->get_input_data(index);
+}
+
+const float *TfliteInferenceEngine::get_output_data(size_t index) const
+{
+    return impl->get_output_data(index);
 }
 
 void TfliteInferenceEngine::set_input_data(size_t index, const float *data)
