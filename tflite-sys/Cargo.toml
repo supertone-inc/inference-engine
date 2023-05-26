@@ -6,6 +6,7 @@ edition.workspace = true
 links = "inference-engine-tflite-sys"
 
 [dependencies]
+inference-engine-core = { path = "../core" }
 
 [dev-dependencies]
 execute-command = "0.3"

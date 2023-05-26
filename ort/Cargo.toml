@@ -8,4 +8,3 @@ links = "inference-engine-ort"
 [dependencies]
 inference-engine-core = { path = "../core" }
 inference-engine-ort-sys = { path = "../ort-sys" }
-thiserror = "1.0"

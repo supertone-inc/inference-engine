@@ -3,11 +3,20 @@
 
 include!("bindings.rs");
 
-impl<E: From<ResultCode>> From<ResultCode> for Result<(), E> {
+use inference_engine_core::Error;
+use std::ffi::CStr;
+
+impl From<ResultCode> for Result<(), Error> {
     fn from(code: ResultCode) -> Self {
         match code {
             ResultCode::Ok => Ok(()),
-            _ => Err(code.into()),
+            ResultCode::Error => unsafe {
+                Err(Error::SysError(
+                    CStr::from_ptr(get_last_error_message())
+                        .to_string_lossy()
+                        .into(),
+                ))
+            },
         }
     }
 }
@@ -15,26 +24,8 @@ impl<E: From<ResultCode>> From<ResultCode> for Result<(), E> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::ffi::{c_void, CStr};
+    use std::ffi::c_void;
     use std::ptr::{null, null_mut};
-
-    #[derive(Debug)]
-    struct Error(String);
-
-    impl From<ResultCode> for Error {
-        fn from(code: ResultCode) -> Self {
-            match code {
-                ResultCode::Ok => panic!("expected error"),
-                ResultCode::Error => unsafe {
-                    Self(
-                        CStr::from_ptr(get_last_error_message())
-                            .to_string_lossy()
-                            .into(),
-                    )
-                },
-            }
-        }
-    }
 
     type Result<T> = std::result::Result<T, Error>;
 
@@ -52,8 +43,8 @@ mod tests {
     fn with_invalid_model_data() {
         unsafe {
             match Result::from(create_inference_engine(null(), 0, null_mut())) {
-                Ok(_) => panic!("expected error"),
-                Err(Error(message)) => assert_eq!(message, "failed to load model"),
+                Err(Error::SysError(message)) => assert_eq!(message, "failed to load model"),
+                _ => panic!("unexpected result"),
             }
         }
     }

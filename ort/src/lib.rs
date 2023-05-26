@@ -1,9 +1,8 @@
 pub use inference_engine_core::*;
 
 use inference_engine_ort_sys as sys;
-use std::ffi::{c_void, CStr};
+use std::ffi::c_void;
 use std::ptr::{null, null_mut};
-use thiserror::Error;
 
 pub struct OrtInferenceEngine(*mut c_void);
 
@@ -25,8 +24,6 @@ impl OrtInferenceEngine {
 }
 
 impl InferenceEngine for OrtInferenceEngine {
-    type Error = Error;
-
     fn input_count(&self) -> usize {
         unsafe { sys::get_input_count(self.0) }
     }
@@ -114,27 +111,6 @@ impl InferenceEngine for OrtInferenceEngine {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("{0}")]
-    SysError(String),
-}
-
-impl From<sys::ResultCode> for Error {
-    fn from(code: sys::ResultCode) -> Self {
-        match code {
-            sys::ResultCode::Ok => panic!("Expected an error."),
-            sys::ResultCode::Error => unsafe {
-                Self::SysError(
-                    CStr::from_ptr(sys::get_last_error_message())
-                        .to_string_lossy()
-                        .into(),
-                )
-            },
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -142,10 +118,10 @@ mod tests {
     #[test]
     fn with_invalid_model_data() {
         match OrtInferenceEngine::new([]) {
-            Ok(_) => panic!("Expected an error."),
             Err(Error::SysError(message)) => {
                 assert_eq!(message, "No graph was found in the protobuf.")
             }
+            _ => panic!("unexpected result"),
         }
     }
 

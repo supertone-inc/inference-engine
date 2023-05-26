@@ -8,4 +8,3 @@ links = "inference_engine_tflite"
 [dependencies]
 inference-engine-core = { path = "../core" }
 inference-engine-tflite-sys = { path = "../tflite-sys" }
-thiserror = "1.0"
