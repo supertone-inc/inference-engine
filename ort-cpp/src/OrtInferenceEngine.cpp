@@ -77,15 +77,24 @@ class OrtInferenceEngine::Impl
 {
 public:
     Impl(const void *model_data, size_t model_data_size_bytes)
-        : session(env, model_data, model_data_size_bytes, Ort::SessionOptions().SetIntraOpNumThreads(1))
+        : env()
+        , session(
+              env,
+              model_data,
+              model_data_size_bytes,
+              static_cast<Ort::SessionOptions &>(
+                  Ort::SessionOptions().SetIntraOpNumThreads(1)
+              )
+          )
+        , allocator()
         , memory_info(Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU))
-        , run_options(Ort::RunOptions{nullptr})
+        , run_options(nullptr)
         , input_count(session.GetInputCount())
         , output_count(session.GetOutputCount())
     {
         for (auto i = 0; i < input_count; i++)
         {
-            input_names.push_back(session.GetInputName(i, allocator));
+            input_names.push_back(session.GetInputNameAllocated(i, allocator));
             input_shapes.push_back(session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
             input_values.push_back(Ort::Value::CreateTensor<float>(
                 allocator,
@@ -96,7 +105,7 @@ public:
 
         for (auto i = 0; i < output_count; i++)
         {
-            output_names.push_back(session.GetOutputName(i, allocator));
+            output_names.push_back(session.GetOutputNameAllocated(i, allocator));
             output_shapes.push_back(session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
             output_values.push_back(Ort::Value::CreateTensor<float>(
                 allocator,
@@ -180,6 +189,20 @@ public:
 
     void run()
     {
+        std::vector<const char *> input_names;
+        input_names.reserve(this->input_names.size());
+        for (const auto &v : this->input_names)
+        {
+            input_names.emplace_back(v.get());
+        }
+
+        std::vector<const char *> output_names;
+        output_names.reserve(this->output_names.size());
+        for (const auto &v : this->output_names)
+        {
+            output_names.emplace_back(v.get());
+        }
+
         session.Run(
             run_options,
             input_names.data(),
@@ -201,8 +224,8 @@ private:
     const size_t input_count;
     const size_t output_count;
 
-    std::vector<const char *> input_names;
-    std::vector<const char *> output_names;
+    std::vector<Ort::AllocatedStringPtr> input_names;
+    std::vector<Ort::AllocatedStringPtr> output_names;
 
     std::vector<Shape> input_shapes;
     std::vector<Shape> output_shapes;
