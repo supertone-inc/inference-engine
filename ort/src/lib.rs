@@ -122,27 +122,33 @@ mod tests {
         let model_data = include_bytes!("../../ort-cpp/test-models/matmul.onnx");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
 
-        assert_eq!(engine.input_count(), 2);
-        assert_eq!(engine.output_count(), 1);
-
-        assert_eq!(engine.input_shape(0), [2, 2]);
-        assert_eq!(engine.input_shape(1), [2, 2]);
-        assert_eq!(engine.output_shape(0), [2, 2]);
+        assert_eq!(engine.input_shapes(), [[2, 2], [2, 2]]);
+        assert_eq!(engine.output_shapes(), [[2, 2]]);
 
         let input_data = [[1., 2., 3., 4.], [5., 6., 7., 8.]];
-        for i in 0..engine.input_count() {
-            engine.set_input_data(i, &input_data[i]).unwrap();
-            assert_eq!(
-                engine.input_data(i).as_mut_ptr(),
-                input_data[i].as_ptr() as _
-            );
-        }
+        let input_data = input_data.iter().map(|v| v.as_slice()).collect::<Vec<_>>();
+        engine.set_input_data_all(&input_data).unwrap();
+        engine
+            .input_data_all()
+            .iter()
+            .zip(input_data.iter())
+            .for_each(|(a, b)| {
+                assert_eq!(a.as_ptr(), b.as_ptr() as _);
+            });
 
         let mut output_data = [[0., 0., 0., 0.]];
-        for i in 0..engine.output_count() {
-            engine.set_output_data(i, &mut output_data[i]).unwrap();
-            assert_eq!(engine.output_data(i).as_ptr(), output_data[i].as_ptr());
-        }
+        let mut output_data = output_data
+            .iter_mut()
+            .map(|v| v.as_mut_slice())
+            .collect::<Vec<_>>();
+        engine.set_output_data_all(&mut output_data).unwrap();
+        engine
+            .output_data_all()
+            .iter()
+            .zip(output_data.iter())
+            .for_each(|(a, b)| {
+                assert_eq!(a.as_ptr(), b.as_ptr() as _);
+            });
 
         engine.run().unwrap();
         assert_eq!(output_data, [[19., 22., 43., 50.]]);
@@ -153,35 +159,39 @@ mod tests {
         let model_data = include_bytes!("../../ort-cpp/test-models/matmul_dynamic.onnx");
         let mut engine = OrtInferenceEngine::new(model_data).unwrap();
 
-        assert_eq!(engine.input_count(), 2);
-        assert_eq!(engine.output_count(), 1);
+        assert_eq!(engine.input_shapes(), [[0, 0], [0, 0]]);
+        assert_eq!(engine.output_shapes(), [[0, 0]]);
 
-        assert_eq!(engine.input_shape(0), [0, 0]);
-        assert_eq!(engine.input_shape(1), [0, 0]);
-        assert_eq!(engine.output_shape(0), [0, 0]);
+        engine.set_input_shapes(&[&[2, 1], &[1, 2]]).unwrap();
+        assert_eq!(engine.input_shapes(), [[2, 1], [1, 2]]);
 
-        engine.set_input_shape(0, &[2, 1]).unwrap();
-        engine.set_input_shape(1, &[1, 2]).unwrap();
-        assert_eq!(engine.input_shape(0), [2, 1]);
-        assert_eq!(engine.input_shape(1), [1, 2]);
-
-        engine.set_output_shape(0, &[2, 2]).unwrap();
-        assert_eq!(engine.output_shape(0), [2, 2]);
+        engine.set_output_shapes(&[&[2, 2]]).unwrap();
+        assert_eq!(engine.output_shapes(), [[2, 2]]);
 
         let input_data = [[1., 2.], [3., 4.]];
-        for i in 0..engine.input_count() {
-            engine.set_input_data(i, &input_data[i]).unwrap();
-            assert_eq!(
-                engine.input_data(i).as_mut_ptr(),
-                input_data[i].as_ptr() as _
-            );
-        }
+        let input_data = input_data.iter().map(|v| v.as_slice()).collect::<Vec<_>>();
+        engine.set_input_data_all(&input_data).unwrap();
+        engine
+            .input_data_all()
+            .iter()
+            .zip(input_data.iter())
+            .for_each(|(a, b)| {
+                assert_eq!(a.as_ptr(), b.as_ptr() as _);
+            });
 
         let mut output_data = [[0., 0., 0., 0.]];
-        for i in 0..engine.output_count() {
-            engine.set_output_data(i, &mut output_data[i]).unwrap();
-            assert_eq!(engine.output_data(i).as_ptr(), output_data[i].as_ptr());
-        }
+        let mut output_data = output_data
+            .iter_mut()
+            .map(|v| v.as_mut_slice())
+            .collect::<Vec<_>>();
+        engine.set_output_data_all(&mut output_data).unwrap();
+        engine
+            .output_data_all()
+            .iter()
+            .zip(output_data.iter())
+            .for_each(|(a, b)| {
+                assert_eq!(a.as_ptr(), b.as_ptr() as _);
+            });
 
         engine.run().unwrap();
         assert_eq!(output_data, [[3., 4., 6., 8.]]);
