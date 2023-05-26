@@ -7,6 +7,9 @@ fn build_cpp() {
     use const_format::formatcp;
     use execute_command as exec;
 
+    #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
+    #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
+
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
     const CMAKE_INSTALL_PREFIX: &str = formatcp!("{CMAKE_SOURCE_DIR}");
@@ -16,14 +19,19 @@ fn build_cpp() {
         "Release"
     };
 
+    #[rustfmt::skip]
     exec::status(format!(
         "cmake \
             -S '{CMAKE_SOURCE_DIR}' \
             -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
+            -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR='{TENSORFLOWLITE_DIR}' \
+            -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION='{TENSORFLOWLITE_VERSION}' \
             -D INFERENCE_ENGINE_TFLITE_RUN_TESTS=OFF \
-            -D INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS=OFF"
+            -D INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS=OFF",
+        TENSORFLOWLITE_DIR = TENSORFLOWLITE_DIR.unwrap_or_default(),
+        TENSORFLOWLITE_VERSION = TENSORFLOWLITE_VERSION.unwrap_or_default(),
     ))
     .unwrap();
     exec::status(format!(

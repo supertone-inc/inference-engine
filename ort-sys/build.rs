@@ -7,6 +7,9 @@ fn build_cpp() {
     use const_format::formatcp;
     use execute_command as exec;
 
+    #[rustfmt::skip] const ONNXRUNTIME_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_ONNXRUNTIME_DIR");
+    #[rustfmt::skip] const ONNXRUNTIME_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_ONNXRUNTIME_VERSION");
+
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
     const CMAKE_INSTALL_PREFIX: &str = formatcp!("{CMAKE_SOURCE_DIR}");
@@ -16,13 +19,19 @@ fn build_cpp() {
         "Release"
     };
 
+    #[rustfmt::skip]
     exec::status(format!(
         "cmake \
             -S '{CMAKE_SOURCE_DIR}' \
             -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
-            -D INFERENCE_ENGINE_ORT_SYS_RUN_TESTS=OFF"
+            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR='{ONNXRUNTIME_DIR}' \
+            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION='{ONNXRUNTIME_VERSION}' \
+            -D INFERENCE_ENGINE_ORT_RUN_TESTS=OFF \
+            -D INFERENCE_ENGINE_ORT_SYS_RUN_TESTS=OFF",
+        ONNXRUNTIME_DIR = ONNXRUNTIME_DIR.unwrap_or_default(),
+        ONNXRUNTIME_VERSION = ONNXRUNTIME_VERSION.unwrap_or_default(),
     ))
     .unwrap();
     exec::status(format!(
@@ -57,6 +66,9 @@ fn build_cpp() {
         println!("cargo:rustc-link-lib=c++");
         println!("cargo:rustc-link-lib=framework=Foundation");
     }
+
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ONNXRUNTIME_DIR");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ONNXRUNTIME_VERSION");
 
     println!("cargo:rerun-if-changed=CMakeLists.txt");
     println!("cargo:rerun-if-changed=include");

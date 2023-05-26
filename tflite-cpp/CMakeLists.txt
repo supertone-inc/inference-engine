@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 project(inference_engine_tflite)
 
-option(INFERENCE_ENGINE_TFLITE_RUN_TESTS "Run tests" OFF)
+set(DEFAULT_TENSORFLOWLITE_VERSION 2.12.0)
+
+set(INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR CACHE PATH "")
+set(INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION CACHE STRING "")
+set(INFERENCE_ENGINE_TFLITE_RUN_TESTS OFF CACHE BOOL "")
+
+if(NOT INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION)
+    set(INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION ${DEFAULT_TENSORFLOWLITE_VERSION})
+endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 
@@ -12,11 +20,13 @@ target_include_directories(inference_engine_tflite PUBLIC include)
 include(cmake/inference_engine_core.cmake)
 target_link_libraries(inference_engine_tflite PUBLIC inference_engine_core)
 
+set(TENSORFLOWLITE_DIR ${INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR})
+set(TENSORFLOWLITE_VERSION ${INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION})
 include(cmake/tensorflowlite.cmake)
 target_link_libraries(inference_engine_tflite PUBLIC tensorflowlite)
 
 install(TARGETS inference_engine_tflite)
-install(DIRECTORY ${tensorflowlite_SOURCE_DIR}/lib/ TYPE LIB)
+install(DIRECTORY ${TENSORFLOWLITE_DIR}/lib/ TYPE LIB)
 
 if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
     add_executable(test_inference_engine_tflite src/TfliteInferenceEngine.test.cpp)
