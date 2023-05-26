@@ -1,0 +1,88 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  RUST_TOOLCHAIN: 1.65
+  CMAKE_VERSION: 3.24
+  PYTHON_VERSION: 3.8
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.runs-on }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - buildjet-4vcpu-ubuntu-2204-arm
+          - ghcr.io/cirruslabs/macos-ventura-xcode:latest
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: rustfmt, clippy
+
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: ${{ env.CMAKE_VERSION }}
+
+      - name: Setup Python
+        id: setup-python
+        continue-on-error: true
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python (Linux)
+        if: runner.os == 'Linux' && steps.setup-python.outcome	== 'failure'
+        run: |
+          sudo apt-get update -q -y
+          sudo apt-get install software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get install -q -y \
+            python${{ env.PYTHON_VERSION }} \
+            python${{ env.PYTHON_VERSION }}-distutils \
+            python${{ env.PYTHON_VERSION }}-venv
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python${{ env.PYTHON_VERSION }} 1
+
+      - name: Install Python (macOS)
+        if: runner.os == 'macOS' && steps.setup-python.outcome	== 'failure'
+        run: |
+          brew install python@${{ env.PYTHON_VERSION }}
+          echo $(which python) >> $GITHUB_PATH
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v8
+
+      - name: Test `ort-cpp/test-model-creator`
+        working-directory: ort-cpp/test-model-creator
+        run: |
+          poetry install
+          poetry run python .
+
+      - name: Test `tflite-cpp/test-model-creator`
+        working-directory: tflite-cpp/test-model-creator
+        run: |
+          poetry install
+          poetry run python .
+
+      - name: Test workspace
+        run: cargo test --workspace
