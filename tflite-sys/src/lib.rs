@@ -100,7 +100,11 @@ mod tests {
 
     #[test]
     fn cpp() {
+        #[cfg(not(windows))]
         execute_command::status("./test.sh").unwrap();
+
+        #[cfg(windows)]
+        execute_command::status("./test.bat").unwrap();
     }
 
     unsafe fn get_input_shapes(engine: *const c_void) -> Vec<Vec<usize>> {

@@ -12,11 +12,7 @@ on:
 env:
   RUST_TOOLCHAIN: 1.65
   CMAKE_VERSION: 3.24
-  PYTHON_VERSION: 3.9
-
-defaults:
-  run:
-    shell: bash
+  PYTHON_VERSION: 3.8
 
 jobs:
   test:
