@@ -84,4 +84,4 @@ jobs:
           poetry run python .
 
       - name: Test workspace
-        run: cargo test --workspace
+        run: cargo test --workspace --release
