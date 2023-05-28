@@ -6,18 +6,19 @@ fn main() {
 fn build_cpp() {
     use const_format::formatcp;
     use execute_command as exec;
+    use std::env;
 
     #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
     #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
 
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
-    const CMAKE_INSTALL_PREFIX: &str = formatcp!("{CMAKE_SOURCE_DIR}");
     const CMAKE_CONFIG: &str = if cfg!(debug_assertions) {
         "Debug"
     } else {
         "Release"
     };
+    let cmake_install_prefix = env::var("OUT_DIR").unwrap();
 
     #[rustfmt::skip]
     exec::status(format!(
@@ -26,7 +27,7 @@ fn build_cpp() {
             -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
-            -D CMAKE_INSTALL_PREFIX='{CMAKE_INSTALL_PREFIX}' \
+            -D CMAKE_INSTALL_PREFIX='{cmake_install_prefix}' \
             -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR='{TENSORFLOWLITE_DIR}' \
             -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION='{TENSORFLOWLITE_VERSION}' \
             -D INFERENCE_ENGINE_TFLITE_RUN_TESTS=OFF \
@@ -49,15 +50,15 @@ fn build_cpp() {
     ))
     .unwrap();
 
-    const LIB_DIR: &str = formatcp!("{CMAKE_INSTALL_PREFIX}/lib");
-    println!("cargo:LIB_DIR={LIB_DIR}");
-    println!("cargo:rustc-link-search={LIB_DIR}");
+    let lib_dir = format!("{cmake_install_prefix}/lib");
+    println!("cargo:LIB_DIR={lib_dir}");
+    println!("cargo:rustc-link-search={lib_dir}");
     println!("cargo:rustc-link-lib=inference_engine_tflite_sys");
     println!("cargo:rustc-link-lib=inference_engine_tflite");
 
-    const EXTERN_LIB_DIR: &str = formatcp!("{CMAKE_INSTALL_PREFIX}/extern/lib");
-    println!("cargo:EXTERN_LIB_DIR={EXTERN_LIB_DIR}");
-    println!("cargo:rustc-link-search={EXTERN_LIB_DIR}");
+    let extern_lib_dir = format!("{cmake_install_prefix}/extern/lib");
+    println!("cargo:EXTERN_LIB_DIR={extern_lib_dir}");
+    println!("cargo:rustc-link-search={extern_lib_dir}");
     println!("cargo:rustc-link-lib=tensorflowlite");
 
     #[cfg(target_os = "linux")]
