@@ -15,7 +15,10 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 set(CMAKE_INSTALL_MESSAGE NEVER)
 
 add_library(inference_engine_ort STATIC src/OrtInferenceEngine.cpp)
-set_target_properties(inference_engine_ort PROPERTIES CXX_STANDARD 17)
+set_target_properties(inference_engine_ort PROPERTIES
+    CXX_STANDARD 17
+    POSITION_INDEPENDENT_CODE ON
+)
 target_include_directories(inference_engine_ort PUBLIC include)
 
 include(cmake/inference_engine_core.cmake)
