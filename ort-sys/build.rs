@@ -26,8 +26,9 @@ fn build_cpp() {
             -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
+            -D CMAKE_INSTALL_PREFIX='{CMAKE_INSTALL_PREFIX}' \
             -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR='{ONNXRUNTIME_DIR}' \
-            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION='{ONNXRUNTIME_VERSION}' \
+            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION={ONNXRUNTIME_VERSION} \
             -D INFERENCE_ENGINE_ORT_RUN_TESTS=OFF \
             -D INFERENCE_ENGINE_ORT_SYS_RUN_TESTS=OFF",
         ONNXRUNTIME_DIR = ONNXRUNTIME_DIR.unwrap_or_default(),
@@ -43,8 +44,7 @@ fn build_cpp() {
     .unwrap();
     exec::status(format!(
         "cmake \
-            --install '{CMAKE_BUILD_DIR}' 
-            --prefix '{CMAKE_INSTALL_PREFIX}' \
+            --install '{CMAKE_BUILD_DIR}' \
             --config {CMAKE_CONFIG}"
     ))
     .unwrap();

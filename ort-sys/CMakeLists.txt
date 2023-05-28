@@ -13,6 +13,11 @@ target_include_directories(inference_engine_ort_sys PUBLIC include)
 add_subdirectory(../ort-cpp ort-cpp)
 target_link_libraries(inference_engine_ort_sys PUBLIC inference_engine_ort)
 
+add_custom_command(
+    TARGET inference_engine_ort_sys
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/lib
+)
 install(TARGETS inference_engine_ort_sys)
 
 if(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS)

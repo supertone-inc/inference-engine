@@ -26,6 +26,7 @@ fn build_cpp() {
             -B '{CMAKE_BUILD_DIR}' \
             -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
             -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
+            -D CMAKE_INSTALL_PREFIX='{CMAKE_INSTALL_PREFIX}' \
             -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR='{TENSORFLOWLITE_DIR}' \
             -D INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION='{TENSORFLOWLITE_VERSION}' \
             -D INFERENCE_ENGINE_TFLITE_RUN_TESTS=OFF \
@@ -43,8 +44,7 @@ fn build_cpp() {
     .unwrap();
     exec::status(format!(
         "cmake \
-            --install '{CMAKE_BUILD_DIR}' 
-            --prefix '{CMAKE_INSTALL_PREFIX}' \
+            --install '{CMAKE_BUILD_DIR}' \
             --config {CMAKE_CONFIG}"
     ))
     .unwrap();
@@ -67,6 +67,9 @@ fn build_cpp() {
     {
         println!("cargo:rustc-link-lib=c++");
     }
+
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
 
     println!("cargo:rerun-if-changed=CMakeLists.txt");
     println!("cargo:rerun-if-changed=include");

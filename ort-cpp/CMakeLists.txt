@@ -26,6 +26,12 @@ set(ONNXRUNTIME_VERSION ${INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION})
 include(cmake/onnxruntime.cmake)
 target_link_libraries(inference_engine_ort PUBLIC onnxruntime)
 
+add_custom_command(
+    TARGET inference_engine_ort
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/extern
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/lib
+)
 install(TARGETS inference_engine_ort)
 install(DIRECTORY ${ONNXRUNTIME_DIR}/ DESTINATION extern)
 

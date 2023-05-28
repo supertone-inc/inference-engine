@@ -26,6 +26,12 @@ set(TENSORFLOWLITE_VERSION ${INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION})
 include(cmake/tensorflowlite.cmake)
 target_link_libraries(inference_engine_tflite PUBLIC tensorflowlite)
 
+add_custom_command(
+    TARGET inference_engine_tflite
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/extern
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/lib
+)
 install(TARGETS inference_engine_tflite)
 install(DIRECTORY ${TENSORFLOWLITE_DIR}/ DESTINATION extern)
 
