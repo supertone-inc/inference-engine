@@ -7,6 +7,7 @@ fn build_cpp() {
     use const_format::formatcp;
     use execute_command as exec;
     use std::env;
+    use std::path::PathBuf;
 
     #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
     #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
@@ -50,13 +51,20 @@ fn build_cpp() {
     ))
     .unwrap();
 
-    let lib_dir = format!("{cmake_install_prefix}/lib");
+    let lib_dir = PathBuf::from(&cmake_install_prefix)
+        .join("lib")
+        .display()
+        .to_string();
     println!("cargo:LIB_DIR={lib_dir}");
     println!("cargo:rustc-link-search={lib_dir}");
     println!("cargo:rustc-link-lib=inference_engine_tflite_sys");
     println!("cargo:rustc-link-lib=inference_engine_tflite");
 
-    let extern_lib_dir = format!("{cmake_install_prefix}/extern/lib");
+    let extern_lib_dir = PathBuf::from(&cmake_install_prefix)
+        .join("extern")
+        .join("lib")
+        .display()
+        .to_string();
     println!("cargo:EXTERN_LIB_DIR={extern_lib_dir}");
     println!("cargo:rustc-link-search={extern_lib_dir}");
     println!("cargo:rustc-link-lib=tensorflowlite");
