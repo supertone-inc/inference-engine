@@ -12,6 +12,7 @@ if(NOT INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION)
 endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 add_library(inference_engine_ort STATIC src/OrtInferenceEngine.cpp)
 set_target_properties(inference_engine_ort PROPERTIES CXX_STANDARD 17)
@@ -26,7 +27,7 @@ include(cmake/onnxruntime.cmake)
 target_link_libraries(inference_engine_ort PUBLIC onnxruntime)
 
 install(TARGETS inference_engine_ort)
-install(DIRECTORY ${ONNXRUNTIME_DIR}/lib/ TYPE LIB)
+install(DIRECTORY ${ONNXRUNTIME_DIR}/ DESTINATION extern)
 
 if(INFERENCE_ENGINE_ORT_RUN_TESTS)
     add_executable(test_inference_engine_ort src/OrtInferenceEngine.test.cpp)

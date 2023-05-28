@@ -50,12 +50,14 @@ fn build_cpp() {
     .unwrap();
 
     const LIB_DIR: &str = formatcp!("{CMAKE_INSTALL_PREFIX}/lib");
-
     println!("cargo:LIB_DIR={LIB_DIR}");
-
     println!("cargo:rustc-link-search={LIB_DIR}");
     println!("cargo:rustc-link-lib=inference_engine_ort_sys");
     println!("cargo:rustc-link-lib=inference_engine_ort");
+
+    const EXTERN_LIB_DIR: &str = formatcp!("{CMAKE_INSTALL_PREFIX}/extern/lib");
+    println!("cargo:EXTERN_LIB_DIR={EXTERN_LIB_DIR}");
+    println!("cargo:rustc-link-search={EXTERN_LIB_DIR}");
     println!("cargo:rustc-link-lib=onnxruntime");
 
     #[cfg(target_os = "linux")]

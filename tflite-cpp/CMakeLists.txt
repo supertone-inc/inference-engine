@@ -12,6 +12,7 @@ if(NOT INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION)
 endif()
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 add_library(inference_engine_tflite STATIC src/TfliteInferenceEngine.cpp)
 set_target_properties(inference_engine_tflite PROPERTIES CXX_STANDARD 17)
@@ -26,7 +27,7 @@ include(cmake/tensorflowlite.cmake)
 target_link_libraries(inference_engine_tflite PUBLIC tensorflowlite)
 
 install(TARGETS inference_engine_tflite)
-install(DIRECTORY ${TENSORFLOWLITE_DIR}/lib/ TYPE LIB)
+install(DIRECTORY ${TENSORFLOWLITE_DIR}/ DESTINATION extern)
 
 if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
     add_executable(test_inference_engine_tflite src/TfliteInferenceEngine.test.cpp)

@@ -1,3 +1,4 @@
 /build
-lib
+/extern
+/lib
 /src/bindings.rs

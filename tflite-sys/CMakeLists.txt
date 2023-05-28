@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.24)
 project(inference_engine_tflite_sys)
 
-option(INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS "Run tests" OFF)
+set(INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS OFF CACHE BOOL "")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 add_library(inference_engine_tflite_sys STATIC src/lib.cpp)
 set_target_properties(inference_engine_tflite_sys PROPERTIES CXX_STANDARD 17)
