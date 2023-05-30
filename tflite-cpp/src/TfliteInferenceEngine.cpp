@@ -161,11 +161,9 @@ public:
 
     void set_input_shape(size_t index, const std::vector<size_t> &shape)
     {
-        input_shapes[index] = shape;
-
         auto tensor_index = interpreter->inputs()[index];
 
-        if (interpreter->ResizeInputTensor(tensor_index, input_shapes[index]) != kTfLiteOk)
+        if (interpreter->ResizeInputTensor(tensor_index, {shape.begin(), shape.end()}) != kTfLiteOk)
         {
             throw std::runtime_error("failed to resize input tensor");
         }
@@ -175,13 +173,19 @@ public:
             throw std::runtime_error("failed to allocate tensor buffers");
         }
 
+        {
+            auto tensor = interpreter->tensor(tensor_index);
+            auto dims = tensor->dims;
+            input_shapes.emplace(input_shapes.begin() + index, dims->data, dims->size);
+        }
+
         auto outputs = interpreter->outputs();
         for (auto i = 0; i < output_count; i++)
         {
             auto tensor_index = outputs[i];
             auto tensor = interpreter->tensor(tensor_index);
             auto dims = tensor->dims;
-            output_shapes.emplace(output_shapes.begin() + 1, dims->data, dims->size);
+            output_shapes.emplace(output_shapes.begin() + i, dims->data, dims->size);
         }
     }
 
