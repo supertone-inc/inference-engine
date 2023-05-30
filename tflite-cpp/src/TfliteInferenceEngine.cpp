@@ -120,20 +120,18 @@ public:
             throw std::runtime_error("failed to allocate tensor buffers");
         }
 
-        auto inputs = interpreter->inputs();
-        input_count = inputs.size();
-        for (auto tensor_index : inputs)
+        input_count = interpreter->inputs().size();
+        for (auto i = 0; i < input_count; i++)
         {
-            auto tensor = interpreter->tensor(tensor_index);
+            auto tensor = interpreter->input_tensor(i);
             auto dims = tensor->dims;
             input_shapes.emplace_back(dims->data, dims->size);
         }
 
-        auto outputs = interpreter->outputs();
-        output_count = outputs.size();
-        for (auto tensor_index : outputs)
+        output_count = interpreter->outputs().size();
+        for (auto i = 0; i < output_count; i++)
         {
-            auto tensor = interpreter->tensor(tensor_index);
+            auto tensor = interpreter->output_tensor(i);
             auto dims = tensor->dims;
             output_shapes.emplace_back(dims->data, dims->size);
         }
@@ -161,9 +159,7 @@ public:
 
     void set_input_shape(size_t index, const std::vector<size_t> &shape)
     {
-        auto tensor_index = interpreter->inputs()[index];
-
-        if (interpreter->ResizeInputTensor(tensor_index, {shape.begin(), shape.end()}) != kTfLiteOk)
+        if (interpreter->ResizeInputTensor(interpreter->inputs()[index], {shape.begin(), shape.end()}) != kTfLiteOk)
         {
             throw std::runtime_error("failed to resize input tensor");
         }
@@ -174,16 +170,14 @@ public:
         }
 
         {
-            auto tensor = interpreter->tensor(tensor_index);
+            auto tensor = interpreter->input_tensor(index);
             auto dims = tensor->dims;
             input_shapes.emplace(input_shapes.begin() + index, dims->data, dims->size);
         }
 
-        auto outputs = interpreter->outputs();
         for (auto i = 0; i < output_count; i++)
         {
-            auto tensor_index = outputs[i];
-            auto tensor = interpreter->tensor(tensor_index);
+            auto tensor = interpreter->output_tensor(i);
             auto dims = tensor->dims;
             output_shapes.emplace(output_shapes.begin() + i, dims->data, dims->size);
         }
