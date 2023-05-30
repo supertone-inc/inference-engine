@@ -170,7 +170,7 @@ public:
 
         if (interpreter->AllocateTensors() != kTfLiteOk)
         {
-            throw std::runtime_error("failed to allocate tensor buffers");
+            throw std::runtime_error("failed to allocate tensor buffers for resized input tensor");
         }
 
         {
@@ -191,7 +191,7 @@ public:
 
     void set_output_shape(size_t index, const std::vector<size_t> &shape)
     {
-        throw std::runtime_error("not supported");
+        throw std::runtime_error("reshape output tensor is not supported");
     }
 
     float *get_input_data(size_t index)
