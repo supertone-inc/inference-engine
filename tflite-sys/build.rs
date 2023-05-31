@@ -1,7 +1,5 @@
 fn main() {
     build_cpp();
-
-    #[cfg(feature = "generate-bindings")]
     generate_bindings();
 }
 
@@ -89,7 +87,6 @@ fn build_cpp() {
     println!("cargo:rerun-if-changed=../core-cpp");
 }
 
-#[cfg(feature = "generate-bindings")]
 fn generate_bindings() {
     use std::path::PathBuf;
 
