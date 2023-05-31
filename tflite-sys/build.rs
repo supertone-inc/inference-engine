@@ -77,8 +77,8 @@ fn build_cpp() {
         println!("cargo:rustc-link-lib=c++");
     }
 
-    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
-    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION");
 
     println!("cargo:rerun-if-changed=CMakeLists.txt");
     println!("cargo:rerun-if-changed=include");

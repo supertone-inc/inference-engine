@@ -78,8 +78,8 @@ fn build_cpp() {
         println!("cargo:rustc-link-lib=framework=Foundation");
     }
 
-    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ONNXRUNTIME_DIR");
-    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ONNXRUNTIME_VERSION");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR");
+    println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION");
 
     println!("cargo:rerun-if-changed=CMakeLists.txt");
     println!("cargo:rerun-if-changed=include");
