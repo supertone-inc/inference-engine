@@ -9,8 +9,8 @@ fn build_cpp() {
     use std::env;
     use std::path::PathBuf;
 
-    #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_DIR");
-    #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TENSORFLOWLITE_VERSION");
+    #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR");
+    #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION");
 
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");

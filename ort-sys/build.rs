@@ -9,8 +9,8 @@ fn build_cpp() {
     use std::env;
     use std::path::PathBuf;
 
-    #[rustfmt::skip] const ONNXRUNTIME_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_ONNXRUNTIME_DIR");
-    #[rustfmt::skip] const ONNXRUNTIME_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_ONNXRUNTIME_VERSION");
+    #[rustfmt::skip] const ONNXRUNTIME_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR");
+    #[rustfmt::skip] const ONNXRUNTIME_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION");
 
     const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
     const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
