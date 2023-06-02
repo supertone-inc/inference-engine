@@ -19,31 +19,27 @@ pub trait InferenceEngine {
 
     fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error>;
     fn set_input_shapes(&mut self, shapes: &[&[usize]]) -> Result<(), Error> {
-        for (i, shape) in shapes.iter().enumerate() {
-            self.set_input_shape(i, shape)?;
-        }
-        Ok(())
+        shapes
+            .iter()
+            .enumerate()
+            .try_for_each(|(i, shape)| self.set_input_shape(i, shape))
     }
     fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error>;
     fn set_output_shapes(&mut self, shapes: &[&[usize]]) -> Result<(), Error> {
-        for (i, shape) in shapes.iter().enumerate() {
-            self.set_output_shape(i, shape)?;
-        }
-        Ok(())
+        shapes
+            .iter()
+            .enumerate()
+            .try_for_each(|(i, shape)| self.set_output_shape(i, shape))
     }
 
     fn input_data(&mut self, index: usize) -> &mut [f32];
     fn input_data_all(&mut self) -> Vec<&mut [f32]> {
-        let mut result = Vec::with_capacity(self.input_count());
-        for i in 0..self.input_count() {
-            result.push(unsafe {
-                std::slice::from_raw_parts_mut(
-                    self.input_data(i).as_mut_ptr(),
-                    self.input_data(i).len(),
-                )
-            });
-        }
-        result
+        (0..self.input_count())
+            .map(|i| unsafe {
+                let data = self.input_data(i);
+                std::slice::from_raw_parts_mut(data.as_mut_ptr(), data.len())
+            })
+            .collect()
     }
     fn output_data(&self, index: usize) -> &[f32];
     fn output_data_all(&self) -> Vec<&[f32]> {
@@ -54,17 +50,15 @@ pub trait InferenceEngine {
 
     fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<(), Error>;
     fn set_input_data_all(&mut self, data: &[&[f32]]) -> Result<(), Error> {
-        for (i, data) in data.iter().enumerate() {
-            self.set_input_data(i, data)?;
-        }
-        Ok(())
+        data.iter()
+            .enumerate()
+            .try_for_each(|(i, data)| self.set_input_data(i, data))
     }
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<(), Error>;
     fn set_output_data_all(&mut self, data: &mut [&mut [f32]]) -> Result<(), Error> {
-        for (i, data) in data.iter_mut().enumerate() {
-            self.set_output_data(i, data)?;
-        }
-        Ok(())
+        data.iter_mut()
+            .enumerate()
+            .try_for_each(|(i, data)| self.set_output_data(i, data))
     }
 
     fn run(&mut self) -> Result<(), Error>;
