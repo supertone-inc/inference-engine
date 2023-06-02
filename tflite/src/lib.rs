@@ -11,21 +11,13 @@ pub struct TfliteInferenceEngine {
     model_data: Vec<u8>,
 }
 
-impl Drop for TfliteInferenceEngine {
-    fn drop(&mut self) {
-        unsafe {
-            sys::destroy_inference_engine(self.raw);
-        }
-    }
-}
-
 impl TfliteInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {
             let model_data = model_data.as_ref().to_owned();
             let mut raw = null_mut();
 
-            Result::from(sys::create_inference_engine(
+            Result::from(sys::inference_engine__create_inference_engine(
                 model_data.as_ptr() as _,
                 model_data.len(),
                 &mut raw,
@@ -36,20 +28,28 @@ impl TfliteInferenceEngine {
     }
 }
 
+impl Drop for TfliteInferenceEngine {
+    fn drop(&mut self) {
+        unsafe {
+            sys::inference_engine__destroy_inference_engine(self.raw);
+        }
+    }
+}
+
 impl InferenceEngine for TfliteInferenceEngine {
     fn input_count(&self) -> usize {
-        unsafe { sys::get_input_count(self.raw) }
+        unsafe { sys::inference_engine__get_input_count(self.raw) }
     }
 
     fn output_count(&self) -> usize {
-        unsafe { sys::get_output_count(self.raw) }
+        unsafe { sys::inference_engine__get_output_count(self.raw) }
     }
 
     fn input_shape(&self, index: usize) -> &[usize] {
         unsafe {
             let mut data = null();
             let mut size = 0;
-            sys::get_input_shape(self.raw, index, &mut data, &mut size);
+            sys::inference_engine__get_input_shape(self.raw, index, &mut data, &mut size);
             std::slice::from_raw_parts(data, size)
         }
     }
@@ -58,14 +58,14 @@ impl InferenceEngine for TfliteInferenceEngine {
         unsafe {
             let mut data = null();
             let mut size = 0;
-            sys::get_output_shape(self.raw, index, &mut data, &mut size);
+            sys::inference_engine__get_output_shape(self.raw, index, &mut data, &mut size);
             std::slice::from_raw_parts(data, size)
         }
     }
 
     fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
-            Result::from(sys::set_input_shape(
+            Result::from(sys::inference_engine__set_input_shape(
                 self.raw,
                 index,
                 shape.as_ptr(),
@@ -76,7 +76,7 @@ impl InferenceEngine for TfliteInferenceEngine {
 
     fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
-            Result::from(sys::set_output_shape(
+            Result::from(sys::inference_engine__set_output_shape(
                 self.raw,
                 index,
                 shape.as_ptr(),
@@ -87,7 +87,7 @@ impl InferenceEngine for TfliteInferenceEngine {
 
     fn input_data(&mut self, index: usize) -> &mut [f32] {
         unsafe {
-            let data = sys::get_input_data(self.raw, index);
+            let data = sys::inference_engine__get_input_data(self.raw, index);
             let size = self.input_shape(index).iter().product();
             std::slice::from_raw_parts_mut(data, size)
         }
@@ -95,22 +95,34 @@ impl InferenceEngine for TfliteInferenceEngine {
 
     fn output_data(&self, index: usize) -> &[f32] {
         unsafe {
-            let data = sys::get_output_data(self.raw, index);
+            let data = sys::inference_engine__get_output_data(self.raw, index);
             let size = self.output_shape(index).iter().product();
             std::slice::from_raw_parts(data, size)
         }
     }
 
     fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_input_data(self.raw, index, data.as_ptr())) }
+        unsafe {
+            Result::from(sys::inference_engine__set_input_data(
+                self.raw,
+                index,
+                data.as_ptr(),
+            ))
+        }
     }
 
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_output_data(self.raw, index, data.as_mut_ptr())) }
+        unsafe {
+            Result::from(sys::inference_engine__set_output_data(
+                self.raw,
+                index,
+                data.as_mut_ptr(),
+            ))
+        }
     }
 
     fn run(&mut self) -> Result<()> {
-        unsafe { Result::from(sys::run(self.raw)) }
+        unsafe { Result::from(sys::inference_engine__run(self.raw)) }
     }
 }
 

@@ -1,4 +1,4 @@
-#include "lib.hpp"
+#include "lib.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
@@ -15,13 +15,11 @@ std::vector<std::byte> read_file(const std::filesystem::path &file_path)
     return std::move(file);
 }
 
-using namespace inference_engine::sys;
-
-void unwrap(ResultCode code)
+void unwrap(InferenceEngineResultCode code)
 {
-    if (code == ResultCode::Error)
+    if (code == InferenceEngineResultCode::Error)
     {
-        throw std::runtime_error(get_last_error_message());
+        throw std::runtime_error(inference_engine__get_last_error_message());
     }
 }
 
@@ -29,11 +27,11 @@ std::vector<std::vector<size_t>> get_input_shapes(const void *engine)
 {
     std::vector<std::vector<size_t>> shapes;
 
-    for (auto i = 0; i < get_input_count(engine); i++)
+    for (auto i = 0; i < inference_engine__get_input_count(engine); i++)
     {
         const size_t *data;
         size_t size;
-        get_input_shape(engine, i, &data, &size);
+        inference_engine__get_input_shape(engine, i, &data, &size);
         shapes.push_back({data, data + size});
     }
 
@@ -44,11 +42,11 @@ std::vector<std::vector<size_t>> get_output_shapes(const void *engine)
 {
     std::vector<std::vector<size_t>> shapes;
 
-    for (auto i = 0; i < get_output_count(engine); ++i)
+    for (auto i = 0; i < inference_engine__get_output_count(engine); ++i)
     {
         const size_t *data;
         size_t size;
-        get_output_shape(engine, i, &data, &size);
+        inference_engine__get_output_shape(engine, i, &data, &size);
         shapes.push_back({data, data + size});
     }
 
@@ -57,17 +55,17 @@ std::vector<std::vector<size_t>> get_output_shapes(const void *engine)
 
 void set_input_shapes(void *engine, const std::vector<std::vector<size_t>> &shapes)
 {
-    for (auto i = 0; i < get_input_count(engine); i++)
+    for (auto i = 0; i < inference_engine__get_input_count(engine); i++)
     {
-        unwrap(set_input_shape(engine, i, shapes[i].data(), shapes[i].size()));
+        unwrap(inference_engine__set_input_shape(engine, i, shapes[i].data(), shapes[i].size()));
     }
 }
 
 void set_output_shapes(void *engine, const std::vector<std::vector<size_t>> &shapes)
 {
-    for (auto i = 0; i < get_output_count(engine); ++i)
+    for (auto i = 0; i < inference_engine__get_output_count(engine); ++i)
     {
-        unwrap(set_output_shape(engine, i, shapes[i].data(), shapes[i].size()));
+        unwrap(inference_engine__set_output_shape(engine, i, shapes[i].data(), shapes[i].size()));
     }
 }
 
@@ -79,7 +77,7 @@ struct Engine
     {
         if (ptr)
         {
-            unwrap(destroy_inference_engine(ptr));
+            unwrap(inference_engine__destroy_inference_engine(ptr));
             ptr = nullptr;
         }
     }
@@ -93,7 +91,7 @@ struct Engine
 TEST_CASE("OrtInferenceEngine with invalid model data")
 {
     REQUIRE_THROWS_WITH(
-        unwrap(create_inference_engine(nullptr, 0, nullptr)),
+        unwrap(inference_engine__create_inference_engine(nullptr, 0, nullptr)),
         "No graph was found in the protobuf."
     );
 }
@@ -103,11 +101,11 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     auto model = read_file("../ort-cpp/test-models/matmul_dynamic.onnx");
 
     Engine engine;
-    unwrap(create_inference_engine(model.data(), model.size(), &engine.ptr));
+    unwrap(inference_engine__create_inference_engine(model.data(), model.size(), &engine.ptr));
     REQUIRE(engine.ptr != nullptr);
 
-    REQUIRE(get_input_count(engine.ptr) == 2);
-    REQUIRE(get_output_count(engine.ptr) == 1);
+    REQUIRE(inference_engine__get_input_count(engine.ptr) == 2);
+    REQUIRE(inference_engine__get_output_count(engine.ptr) == 1);
 
     REQUIRE(get_input_shapes(engine.ptr) == std::vector<std::vector<size_t>>{{0, 0}, {0, 0}});
     REQUIRE(get_output_shapes(engine.ptr) == std::vector<std::vector<size_t>>{{0, 0}});
@@ -119,20 +117,20 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     REQUIRE(get_output_shapes(engine.ptr) == std::vector<std::vector<size_t>>{{2, 2}});
 
     std::vector<std::vector<float>> inputs{{1, 2}, {3, 4}};
-    for (auto i = 0; i < get_input_count(engine.ptr); i++)
+    for (auto i = 0; i < inference_engine__get_input_count(engine.ptr); i++)
     {
-        unwrap(set_input_data(engine.ptr, i, inputs[i].data()));
-        REQUIRE(get_input_data(engine.ptr, i) == inputs[i].data());
+        unwrap(inference_engine__set_input_data(engine.ptr, i, inputs[i].data()));
+        REQUIRE(inference_engine__get_input_data(engine.ptr, i) == inputs[i].data());
     }
 
     std::vector<std::vector<float>> outputs{{0, 0, 0, 0}};
-    for (auto i = 0; i < get_output_count(engine.ptr); i++)
+    for (auto i = 0; i < inference_engine__get_output_count(engine.ptr); i++)
     {
-        unwrap(set_output_data(engine.ptr, i, outputs[i].data()));
-        REQUIRE(get_output_data(engine.ptr, i) == outputs[i].data());
+        unwrap(inference_engine__set_output_data(engine.ptr, i, outputs[i].data()));
+        REQUIRE(inference_engine__get_output_data(engine.ptr, i) == outputs[i].data());
     }
 
-    unwrap(run(engine.ptr));
+    unwrap(inference_engine__run(engine.ptr));
     REQUIRE(outputs == std::vector<std::vector<float>>{{{3, 4, 6, 8}}});
 
     engine.destroy();

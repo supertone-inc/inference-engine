@@ -6,13 +6,13 @@ include!("bindings.rs");
 use inference_engine_core::Error;
 use std::ffi::CStr;
 
-impl From<ResultCode> for Result<(), Error> {
-    fn from(code: ResultCode) -> Self {
+impl From<InferenceEngineResultCode> for Result<(), Error> {
+    fn from(code: InferenceEngineResultCode) -> Self {
         match code {
-            ResultCode::Ok => Ok(()),
-            ResultCode::Error => unsafe {
+            InferenceEngineResultCode::Ok => Ok(()),
+            InferenceEngineResultCode::Error => unsafe {
                 Err(Error::SysError(
-                    CStr::from_ptr(get_last_error_message())
+                    CStr::from_ptr(inference_engine__get_last_error_message())
                         .to_string_lossy()
                         .into(),
                 ))

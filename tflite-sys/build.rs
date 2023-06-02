@@ -90,19 +90,16 @@ fn build_cpp() {
 fn generate_bindings() {
     use std::path::PathBuf;
 
-    let header_path = PathBuf::from("include").join("lib.hpp");
+    let header_path = PathBuf::from("include").join("lib.h");
     let output_path = PathBuf::from("src").join("bindings.rs");
 
     bindgen::Builder::default()
         .header(header_path.display().to_string())
-        .allowlist_function("inference_engine::.*")
-        .clang_args(["-x", "c++", "-std=c++17"])
+        .allowlist_file(header_path.display().to_string())
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
         })
-        .disable_name_namespacing()
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
-        .respect_cxx_access_specs(true)
         .size_t_is_usize(true)
         .generate()
         .unwrap()
