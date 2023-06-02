@@ -87,6 +87,7 @@ fn build_cpp() {
     println!("cargo:rerun-if-changed=CMakeLists.txt");
     println!("cargo:rerun-if-changed=include");
     println!("cargo:rerun-if-changed=src/lib.cpp");
+    println!("cargo:rerun-if-changed=../core-sys");
     println!("cargo:rerun-if-changed=../ort-cpp");
     println!("cargo:rerun-if-changed=../core-cpp");
 }
