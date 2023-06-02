@@ -21,7 +21,7 @@ set_target_properties(inference_engine_ort PROPERTIES
 )
 target_include_directories(inference_engine_ort PUBLIC include)
 
-include(cmake/inference_engine_core.cmake)
+include(../core-cpp/cmake/inference_engine_core.cmake)
 target_link_libraries(inference_engine_ort PUBLIC inference_engine_core)
 
 set(ONNXRUNTIME_DIR ${INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR})
@@ -44,7 +44,7 @@ if(INFERENCE_ENGINE_ORT_RUN_TESTS)
     target_link_libraries(test_inference_engine_ort inference_engine_ort)
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-    include(cmake/catch2.cmake)
+    include(../core-cpp/cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_ort Catch2WithMain)
 
     if(APPLE)

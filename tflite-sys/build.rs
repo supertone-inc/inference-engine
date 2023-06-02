@@ -59,6 +59,7 @@ fn build_cpp() {
         .to_string();
     println!("cargo:LIB_DIR={lib_dir}");
     println!("cargo:rustc-link-search={lib_dir}");
+    println!("cargo:rustc-link-lib=inference_engine_core_sys");
     println!("cargo:rustc-link-lib=inference_engine_tflite_sys");
     println!("cargo:rustc-link-lib=inference_engine_tflite");
 
@@ -99,10 +100,10 @@ fn generate_bindings() {
     bindgen::Builder::default()
         .header(header_path.display().to_string())
         .allowlist_file(header_path.display().to_string())
-        .default_enum_style(bindgen::EnumVariation::Rust {
-            non_exhaustive: false,
-        })
+        .blocklist_item("InferenceEngineResultCode")
+        .clang_args(["-I../core-sys/include"])
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .raw_line("pub use inference_engine_core_sys::*;")
         .size_t_is_usize(true)
         .generate()
         .unwrap()

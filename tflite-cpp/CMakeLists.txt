@@ -21,7 +21,7 @@ set_target_properties(inference_engine_tflite PROPERTIES
 )
 target_include_directories(inference_engine_tflite PUBLIC include)
 
-include(cmake/inference_engine_core.cmake)
+include(../core-cpp/cmake/inference_engine_core.cmake)
 target_link_libraries(inference_engine_tflite PUBLIC inference_engine_core)
 
 set(TENSORFLOWLITE_DIR ${INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR})
@@ -44,7 +44,7 @@ if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
     target_link_libraries(test_inference_engine_tflite inference_engine_tflite)
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-    include(cmake/catch2.cmake)
+    include(../core-cpp/cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_tflite Catch2WithMain)
 
     add_custom_target(run_test_inference_engine_tflite

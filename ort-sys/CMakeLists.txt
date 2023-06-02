@@ -13,6 +13,9 @@ set_target_properties(inference_engine_ort_sys PROPERTIES
 )
 target_include_directories(inference_engine_ort_sys PUBLIC include)
 
+add_subdirectory(../core-sys core-sys)
+target_link_libraries(inference_engine_ort_sys PUBLIC inference_engine_core_sys)
+
 add_subdirectory(../ort-cpp ort-cpp)
 target_link_libraries(inference_engine_ort_sys PUBLIC inference_engine_ort)
 
@@ -29,7 +32,7 @@ if(INFERENCE_ENGINE_ORT_SYS_RUN_TESTS)
     target_link_libraries(test_inference_engine_ort_sys inference_engine_ort_sys)
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-    include(../ort-cpp/cmake/catch2.cmake)
+    include(../core-cpp/cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_ort_sys Catch2WithMain)
 
     if(APPLE)

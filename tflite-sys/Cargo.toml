@@ -9,7 +9,7 @@ links = "inference-engine-tflite-sys"
 generate-bindings = ["bindgen"]
 
 [dependencies]
-inference-engine-core = { path = "../core" }
+inference-engine-core-sys = { path = "../core-sys" }
 
 [dev-dependencies]
 execute-command = "0.3"

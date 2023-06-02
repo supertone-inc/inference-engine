@@ -8,4 +8,5 @@ links = "inference-engine-ort"
 [dependencies]
 assert_matches = "1.5"
 inference-engine-core = { path = "../core" }
+inference-engine-core-sys = { path = "../core-sys" }
 inference-engine-ort-sys = { path = "../ort-sys" }

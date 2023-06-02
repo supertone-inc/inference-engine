@@ -1,5 +1,5 @@
 [workspace]
-members = ["core", "ort", "ort-sys", "tflite", "tflite-sys"]
+members = ["core", "core-sys", "ort", "ort-sys", "tflite", "tflite-sys"]
 
 [workspace.package]
 version = "0.0.0"

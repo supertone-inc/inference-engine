@@ -13,6 +13,9 @@ set_target_properties(inference_engine_tflite_sys PROPERTIES
 )
 target_include_directories(inference_engine_tflite_sys PUBLIC include)
 
+add_subdirectory(../core-sys core-sys)
+target_link_libraries(inference_engine_tflite_sys PUBLIC inference_engine_core_sys)
+
 add_subdirectory(../tflite-cpp tflite-cpp)
 target_link_libraries(inference_engine_tflite_sys PUBLIC inference_engine_tflite)
 
