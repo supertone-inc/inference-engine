@@ -5,9 +5,10 @@ use std::ffi::c_void;
 use std::ptr::{null, null_mut};
 
 pub struct TfliteInferenceEngine {
+    raw: *mut c_void,
+
     #[allow(dead_code)]
     model_data: Vec<u8>,
-    raw: *mut c_void,
 }
 
 impl Drop for TfliteInferenceEngine {
@@ -30,7 +31,7 @@ impl TfliteInferenceEngine {
                 &mut raw,
             ))?;
 
-            Ok(Self { model_data, raw })
+            Ok(Self { raw, model_data })
         }
     }
 }

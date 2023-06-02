@@ -4,12 +4,14 @@ use inference_engine_ort_sys as sys;
 use std::ffi::c_void;
 use std::ptr::{null, null_mut};
 
-pub struct OrtInferenceEngine(*mut c_void);
+pub struct OrtInferenceEngine {
+    raw: *mut c_void,
+}
 
 impl Drop for OrtInferenceEngine {
     fn drop(&mut self) {
         unsafe {
-            sys::destroy_inference_engine(self.0);
+            sys::destroy_inference_engine(self.raw);
         }
     }
 }
@@ -18,33 +20,33 @@ impl OrtInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {
             let model_data = model_data.as_ref();
-            let mut model = null_mut();
+            let mut raw = null_mut();
 
             Result::from(sys::create_inference_engine(
                 model_data.as_ptr() as _,
                 model_data.len(),
-                &mut model,
+                &mut raw,
             ))?;
 
-            Ok(OrtInferenceEngine(model))
+            Ok(Self { raw })
         }
     }
 }
 
 impl InferenceEngine for OrtInferenceEngine {
     fn input_count(&self) -> usize {
-        unsafe { sys::get_input_count(self.0) }
+        unsafe { sys::get_input_count(self.raw) }
     }
 
     fn output_count(&self) -> usize {
-        unsafe { sys::get_output_count(self.0) }
+        unsafe { sys::get_output_count(self.raw) }
     }
 
     fn input_shape(&self, index: usize) -> &[usize] {
         unsafe {
             let mut data = null();
             let mut size = 0;
-            sys::get_input_shape(self.0, index, &mut data, &mut size);
+            sys::get_input_shape(self.raw, index, &mut data, &mut size);
             std::slice::from_raw_parts(data, size)
         }
     }
@@ -53,7 +55,7 @@ impl InferenceEngine for OrtInferenceEngine {
         unsafe {
             let mut data = null();
             let mut size = 0;
-            sys::get_output_shape(self.0, index, &mut data, &mut size);
+            sys::get_output_shape(self.raw, index, &mut data, &mut size);
             std::slice::from_raw_parts(data, size)
         }
     }
@@ -61,7 +63,7 @@ impl InferenceEngine for OrtInferenceEngine {
     fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
             Result::from(sys::set_input_shape(
-                self.0,
+                self.raw,
                 index,
                 shape.as_ptr(),
                 shape.len(),
@@ -72,7 +74,7 @@ impl InferenceEngine for OrtInferenceEngine {
     fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
         unsafe {
             Result::from(sys::set_output_shape(
-                self.0,
+                self.raw,
                 index,
                 shape.as_ptr(),
                 shape.len(),
@@ -82,7 +84,7 @@ impl InferenceEngine for OrtInferenceEngine {
 
     fn input_data(&mut self, index: usize) -> &mut [f32] {
         unsafe {
-            let data = sys::get_input_data(self.0, index);
+            let data = sys::get_input_data(self.raw, index);
             let size = self.input_shape(index).iter().product();
             std::slice::from_raw_parts_mut(data, size)
         }
@@ -90,22 +92,22 @@ impl InferenceEngine for OrtInferenceEngine {
 
     fn output_data(&self, index: usize) -> &[f32] {
         unsafe {
-            let data = sys::get_output_data(self.0, index);
+            let data = sys::get_output_data(self.raw, index);
             let size = self.output_shape(index).iter().product();
             std::slice::from_raw_parts(data, size)
         }
     }
 
     fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_input_data(self.0, index, data.as_ptr())) }
+        unsafe { Result::from(sys::set_input_data(self.raw, index, data.as_ptr())) }
     }
 
     fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
-        unsafe { Result::from(sys::set_output_data(self.0, index, data.as_mut_ptr())) }
+        unsafe { Result::from(sys::set_output_data(self.raw, index, data.as_mut_ptr())) }
     }
 
     fn run(&mut self) -> Result<()> {
-        unsafe { Result::from(sys::run(self.0)) }
+        unsafe { Result::from(sys::run(self.raw)) }
     }
 }
 
