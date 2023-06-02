@@ -10,6 +10,14 @@ pub struct TfliteInferenceEngine {
     raw: *mut c_void,
 }
 
+impl Drop for TfliteInferenceEngine {
+    fn drop(&mut self) {
+        unsafe {
+            sys::destroy_inference_engine(self.raw);
+        }
+    }
+}
+
 impl TfliteInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {

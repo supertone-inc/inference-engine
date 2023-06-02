@@ -6,6 +6,14 @@ use std::ptr::{null, null_mut};
 
 pub struct OrtInferenceEngine(*mut c_void);
 
+impl Drop for OrtInferenceEngine {
+    fn drop(&mut self) {
+        unsafe {
+            sys::destroy_inference_engine(self.0);
+        }
+    }
+}
+
 impl OrtInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self> {
         unsafe {
