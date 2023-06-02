@@ -5,6 +5,9 @@ publish.workspace = true
 edition.workspace = true
 links = "inference-engine-tflite-sys"
 
+[features]
+generate-bindings = ["bindgen"]
+
 [dependencies]
 inference-engine-core = { path = "../core" }
 
@@ -12,6 +15,6 @@ inference-engine-core = { path = "../core" }
 execute-command = "0.3"
 
 [build-dependencies]
-bindgen = "0.65"
+bindgen = { version = "0.65", optional = true }
 const_format = "0.2"
 execute-command = "0.3"
