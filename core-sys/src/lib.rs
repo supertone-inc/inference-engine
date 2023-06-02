@@ -1,16 +1,12 @@
-pub use inference_engine_core::*;
-
-use std::ffi::CStr;
-
 include!("bindings.rs");
 
-impl From<InferenceEngineResultCode> for Result<(), Error> {
+impl From<InferenceEngineResultCode> for Result<(), inference_engine_core::Error> {
     fn from(code: InferenceEngineResultCode) -> Self {
         match code {
             InferenceEngineResultCode::Ok => Ok(()),
             InferenceEngineResultCode::Error => unsafe {
-                Err(Error::SysError(
-                    CStr::from_ptr(inference_engine__get_last_error_message())
+                Err(inference_engine_core::Error::SysError(
+                    std::ffi::CStr::from_ptr(inference_engine__get_last_error_message())
                         .to_string_lossy()
                         .into(),
                 ))
@@ -24,11 +20,9 @@ macro_rules! impl_inference_engine {
     ($target:ty) => {
         mod r#impl {
             use super::*;
-            use inference_engine_core as core;
+            use inference_engine_core::{Error, InferenceEngine};
             use inference_engine_core_sys as sys;
             use std::ptr::null;
-
-            type Result<T> = std::result::Result<T, core::Error>;
 
             impl Drop for $target {
                 fn drop(&mut self) {
@@ -70,7 +64,7 @@ macro_rules! impl_inference_engine {
                     }
                 }
 
-                fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
+                fn set_input_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error> {
                     unsafe {
                         Result::from(sys::inference_engine__set_input_shape(
                             self.raw,
@@ -81,7 +75,7 @@ macro_rules! impl_inference_engine {
                     }
                 }
 
-                fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<()> {
+                fn set_output_shape(&mut self, index: usize, shape: &[usize]) -> Result<(), Error> {
                     unsafe {
                         Result::from(sys::inference_engine__set_output_shape(
                             self.raw,
@@ -108,7 +102,7 @@ macro_rules! impl_inference_engine {
                     }
                 }
 
-                fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<()> {
+                fn set_input_data(&mut self, index: usize, data: &[f32]) -> Result<(), Error> {
                     unsafe {
                         Result::from(sys::inference_engine__set_input_data(
                             self.raw,
@@ -118,7 +112,7 @@ macro_rules! impl_inference_engine {
                     }
                 }
 
-                fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<()> {
+                fn set_output_data(&mut self, index: usize, data: &mut [f32]) -> Result<(), Error> {
                     unsafe {
                         Result::from(sys::inference_engine__set_output_data(
                             self.raw,
@@ -128,7 +122,7 @@ macro_rules! impl_inference_engine {
                     }
                 }
 
-                fn run(&mut self) -> Result<()> {
+                fn run(&mut self) -> Result<(), Error> {
                     unsafe { Result::from(sys::inference_engine__run(self.raw)) }
                 }
             }
