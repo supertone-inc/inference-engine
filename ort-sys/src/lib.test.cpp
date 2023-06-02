@@ -91,7 +91,7 @@ struct Engine
 TEST_CASE("OrtInferenceEngine with invalid model data")
 {
     REQUIRE_THROWS_WITH(
-        unwrap(inference_engine__create_inference_engine(nullptr, 0, nullptr)),
+        unwrap(inference_engine_ort__create_inference_engine(nullptr, 0, nullptr)),
         "No graph was found in the protobuf."
     );
 }
@@ -101,7 +101,7 @@ TEST_CASE("OrtInferenceEngine with dynamic-shape model")
     auto model = read_file("../ort-cpp/test-models/matmul_dynamic.onnx");
 
     Engine engine;
-    unwrap(inference_engine__create_inference_engine(model.data(), model.size(), &engine.ptr));
+    unwrap(inference_engine_ort__create_inference_engine(model.data(), model.size(), &engine.ptr));
     REQUIRE(engine.ptr != nullptr);
 
     REQUIRE(inference_engine__get_input_count(engine.ptr) == 2);

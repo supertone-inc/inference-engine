@@ -83,7 +83,7 @@ struct Engine
 TEST_CASE("TfliteInferenceEngine with invalid model data")
 {
     REQUIRE_THROWS_WITH(
-        unwrap(inference_engine__create_inference_engine(nullptr, 0, nullptr)),
+        unwrap(inference_engine_tflite__create_inference_engine(nullptr, 0, nullptr)),
         "failed to load model"
     );
 }
@@ -93,7 +93,7 @@ TEST_CASE("TfliteInferenceEngine with reshaping inputs")
     auto model = read_file("../tflite-cpp/test-models/matmul.tflite");
 
     Engine engine;
-    unwrap(inference_engine__create_inference_engine(model.data(), model.size(), &engine.ptr));
+    unwrap(inference_engine_tflite__create_inference_engine(model.data(), model.size(), &engine.ptr));
     REQUIRE(engine.ptr != nullptr);
 
     REQUIRE(inference_engine__get_input_count(engine.ptr) == 2);

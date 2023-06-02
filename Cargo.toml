@@ -22,6 +22,11 @@ inference-engine-core = { path = "core" }
 inference-engine-ort = { path = "ort", optional = true }
 inference-engine-tflite = { path = "tflite", optional = true }
 
+[dev-dependencies]
+assert_matches = "1.5"
+inference-engine-ort = { path = "ort" }
+inference-engine-tflite = { path = "tflite" }
+
 [dev-dependencies.cargo-husky]
 version = "1"
 default-features = false

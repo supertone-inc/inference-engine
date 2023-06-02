@@ -4,6 +4,7 @@ use inference_engine_tflite_sys as sys;
 use std::ffi::c_void;
 use std::ptr::{null, null_mut};
 
+#[derive(Debug)]
 pub struct TfliteInferenceEngine {
     raw: *mut c_void,
 
@@ -17,8 +18,12 @@ impl TfliteInferenceEngine {
             let model_data = model_data.as_ref().to_owned();
             let mut raw = null_mut();
 
-            Result::from(sys::inference_engine__create_inference_engine(
-                model_data.as_ptr() as _,
+            Result::from(sys::inference_engine_tflite__create_inference_engine(
+                if model_data.is_empty() {
+                    null()
+                } else {
+                    model_data.as_ptr() as _
+                },
                 model_data.len(),
                 &mut raw,
             ))?;
@@ -129,17 +134,19 @@ impl InferenceEngine for TfliteInferenceEngine {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[cfg(test)]
+#[macro_use]
+extern crate assert_matches;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn with_invalid_model_data() {
-        match TfliteInferenceEngine::new([0]) {
-            Err(Error::SysError(message)) => {
-                assert_eq!(message, "failed to load model")
-            }
-            _ => panic!("unexpected result"),
-        }
+        assert_matches!(
+            TfliteInferenceEngine::new([]),
+            Err(Error::SysError(message)) if message == "failed to load model"
+        );
     }
 
     #[test]

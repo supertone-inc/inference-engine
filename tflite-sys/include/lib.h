@@ -14,7 +14,7 @@ extern "C"
 
     const char *inference_engine__get_last_error_message();
 
-    InferenceEngineResultCode inference_engine__create_inference_engine(const void *model_data, size_t model_data_size_bytes, void **engine);
+    InferenceEngineResultCode inference_engine_tflite__create_inference_engine(const void *model_data, size_t model_data_size_bytes, void **engine);
     InferenceEngineResultCode inference_engine__destroy_inference_engine(void *engine);
 
     size_t inference_engine__get_input_count(const void *engine);

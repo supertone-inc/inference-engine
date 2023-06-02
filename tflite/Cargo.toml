@@ -6,5 +6,6 @@ edition.workspace = true
 links = "inference_engine_tflite"
 
 [dependencies]
+assert_matches = "1.5"
 inference-engine-core = { path = "../core" }
 inference-engine-tflite-sys = { path = "../tflite-sys" }

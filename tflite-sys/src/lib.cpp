@@ -18,7 +18,7 @@ const char *inference_engine__get_last_error_message()
     return last_error_message.c_str();
 }
 
-InferenceEngineResultCode inference_engine__create_inference_engine(const void *model_data, size_t model_data_size_bytes, void **engine)
+InferenceEngineResultCode inference_engine_tflite__create_inference_engine(const void *model_data, size_t model_data_size_bytes, void **engine)
 {
     try
     {

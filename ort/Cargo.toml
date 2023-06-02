@@ -6,5 +6,6 @@ edition.workspace = true
 links = "inference-engine-ort"
 
 [dependencies]
+assert_matches = "1.5"
 inference-engine-core = { path = "../core" }
 inference-engine-ort-sys = { path = "../ort-sys" }

@@ -10,7 +10,7 @@ extern "C" {
     pub fn inference_engine__get_last_error_message() -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-    pub fn inference_engine__create_inference_engine(
+    pub fn inference_engine_tflite__create_inference_engine(
         model_data: *const ::std::os::raw::c_void,
         model_data_size_bytes: usize,
         engine: *mut *mut ::std::os::raw::c_void,

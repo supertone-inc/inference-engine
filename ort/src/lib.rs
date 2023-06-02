@@ -4,6 +4,7 @@ use inference_engine_ort_sys as sys;
 use std::ffi::c_void;
 use std::ptr::{null, null_mut};
 
+#[derive(Debug)]
 pub struct OrtInferenceEngine {
     raw: *mut c_void,
 }
@@ -14,7 +15,7 @@ impl OrtInferenceEngine {
             let model_data = model_data.as_ref();
             let mut raw = null_mut();
 
-            Result::from(sys::inference_engine__create_inference_engine(
+            Result::from(sys::inference_engine_ort__create_inference_engine(
                 model_data.as_ptr() as _,
                 model_data.len(),
                 &mut raw,
@@ -126,17 +127,19 @@ impl InferenceEngine for OrtInferenceEngine {
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[cfg(test)]
+#[macro_use]
+extern crate assert_matches;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn with_invalid_model_data() {
-        match OrtInferenceEngine::new([]) {
-            Err(Error::SysError(message)) => {
-                assert_eq!(message, "No graph was found in the protobuf.")
-            }
-            _ => panic!("unexpected result"),
-        }
+        assert_matches!(
+            OrtInferenceEngine::new([]),
+            Err(Error::SysError(message)) if message == "No graph was found in the protobuf."
+        );
     }
 
     #[test]
