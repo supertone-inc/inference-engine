@@ -1,4 +1,4 @@
-#include "inference_engine/TfliteInferenceEngine.hpp"
+#include "inference_engine/TfLiteInferenceEngine.hpp"
 
 #include <tensorflow/lite/interpreter.h>
 #include <tensorflow/lite/kernels/register.h>
@@ -87,7 +87,7 @@ private:
     }
 };
 
-class TfliteInferenceEngine::Impl
+class TfLiteInferenceEngine::Impl
 {
 public:
     Impl(const void *model_data, size_t model_data_size_bytes)
@@ -227,62 +227,62 @@ private:
     std::vector<Shape> output_shapes;
 };
 
-TfliteInferenceEngine::TfliteInferenceEngine(const void *model_data, size_t model_data_size_bytes)
+TfLiteInferenceEngine::TfLiteInferenceEngine(const void *model_data, size_t model_data_size_bytes)
     : impl(new Impl(model_data, model_data_size_bytes))
 {
 }
 
-size_t TfliteInferenceEngine::get_input_count() const
+size_t TfLiteInferenceEngine::get_input_count() const
 {
     return impl->get_input_count();
 }
 
-size_t TfliteInferenceEngine::get_output_count() const
+size_t TfLiteInferenceEngine::get_output_count() const
 {
     return impl->get_output_count();
 }
 
-const std::vector<size_t> &TfliteInferenceEngine::get_input_shape(size_t index) const
+const std::vector<size_t> &TfLiteInferenceEngine::get_input_shape(size_t index) const
 {
     return impl->get_input_shape(index);
 }
 
-const std::vector<size_t> &TfliteInferenceEngine::get_output_shape(size_t index) const
+const std::vector<size_t> &TfLiteInferenceEngine::get_output_shape(size_t index) const
 {
     return impl->get_output_shape(index);
 }
 
-void TfliteInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
+void TfLiteInferenceEngine::set_input_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_input_shape(index, shape);
 }
 
-void TfliteInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
+void TfLiteInferenceEngine::set_output_shape(size_t index, const std::vector<size_t> &shape)
 {
     impl->set_output_shape(index, shape);
 }
 
-float *TfliteInferenceEngine::get_input_data(size_t index)
+float *TfLiteInferenceEngine::get_input_data(size_t index)
 {
     return impl->get_input_data(index);
 }
 
-const float *TfliteInferenceEngine::get_output_data(size_t index) const
+const float *TfLiteInferenceEngine::get_output_data(size_t index) const
 {
     return impl->get_output_data(index);
 }
 
-void TfliteInferenceEngine::set_input_data(size_t index, const float *data)
+void TfLiteInferenceEngine::set_input_data(size_t index, const float *data)
 {
     impl->set_input_data(index, data);
 }
 
-void TfliteInferenceEngine::set_output_data(size_t index, float *data)
+void TfLiteInferenceEngine::set_output_data(size_t index, float *data)
 {
     impl->set_output_data(index, data);
 }
 
-void TfliteInferenceEngine::run()
+void TfLiteInferenceEngine::run()
 {
     impl->run();
 }

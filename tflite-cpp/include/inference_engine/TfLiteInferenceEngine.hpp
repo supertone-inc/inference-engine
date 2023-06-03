@@ -7,10 +7,10 @@
 
 namespace inference_engine
 {
-class TfliteInferenceEngine : public InferenceEngine
+class TfLiteInferenceEngine : public InferenceEngine
 {
 public:
-    TfliteInferenceEngine(const void *model_data, size_t model_data_size_bytes);
+    TfLiteInferenceEngine(const void *model_data, size_t model_data_size_bytes);
 
     size_t get_input_count() const override;
     size_t get_output_count() const override;

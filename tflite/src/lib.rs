@@ -5,14 +5,14 @@ use std::ffi::c_void;
 use std::ptr::{null, null_mut};
 
 #[derive(Debug)]
-pub struct TfliteInferenceEngine {
+pub struct TfLiteInferenceEngine {
     raw: *mut c_void,
 
     #[allow(dead_code)]
     model_data: Vec<u8>,
 }
 
-impl TfliteInferenceEngine {
+impl TfLiteInferenceEngine {
     pub fn new(model_data: impl AsRef<[u8]>) -> Result<Self, Error> {
         unsafe {
             let model_data = model_data.as_ref().to_owned();
@@ -33,7 +33,7 @@ impl TfliteInferenceEngine {
     }
 }
 
-sys::impl_inference_engine!(TfliteInferenceEngine);
+sys::impl_inference_engine!(TfLiteInferenceEngine);
 
 #[cfg(test)]
 #[macro_use]
@@ -46,7 +46,7 @@ mod tests {
     #[test]
     fn with_invalid_model_data() {
         assert_matches!(
-            TfliteInferenceEngine::new([]),
+            TfLiteInferenceEngine::new([]),
             Err(Error::SysError(message)) if message == "failed to load model"
         );
     }
@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn with_fixed_shape_model() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
-        let mut engine = TfliteInferenceEngine::new(model_data).unwrap();
+        let mut engine = TfLiteInferenceEngine::new(model_data).unwrap();
 
         assert_eq!(engine.input_shapes(), [[2, 2], [2, 2]]);
         assert_eq!(engine.output_shapes(), [[2, 2]]);
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn with_reshaping_inputs() {
         let model_data = include_bytes!("../../tflite-cpp/test-models/matmul.tflite");
-        let mut engine = TfliteInferenceEngine::new(model_data).unwrap();
+        let mut engine = TfLiteInferenceEngine::new(model_data).unwrap();
 
         assert_eq!(engine.input_shapes(), [[2, 2], [2, 2]]);
         assert_eq!(engine.output_shapes(), [[2, 2]]);

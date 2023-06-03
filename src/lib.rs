@@ -22,7 +22,7 @@ mod tests {
         );
 
         assert_matches!(
-            tflite::TfliteInferenceEngine::new([]),
+            tflite::TfLiteInferenceEngine::new([]),
             Err(Error::SysError(message)) if message == "failed to load model"
         );
     }

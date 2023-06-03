@@ -80,7 +80,7 @@ struct Engine
     }
 };
 
-TEST_CASE("TfliteInferenceEngine with invalid model data")
+TEST_CASE("TfLiteInferenceEngine with invalid model data")
 {
     REQUIRE_THROWS_WITH(
         unwrap(inference_engine_tflite__create_inference_engine(nullptr, 0, nullptr)),
@@ -88,7 +88,7 @@ TEST_CASE("TfliteInferenceEngine with invalid model data")
     );
 }
 
-TEST_CASE("TfliteInferenceEngine with reshaping inputs")
+TEST_CASE("TfLiteInferenceEngine with reshaping inputs")
 {
     auto model = read_file("../tflite-cpp/test-models/matmul.tflite");
 

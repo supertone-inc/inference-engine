@@ -1,4 +1,4 @@
-#include "inference_engine/TfliteInferenceEngine.hpp"
+#include "inference_engine/TfLiteInferenceEngine.hpp"
 
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
@@ -18,10 +18,10 @@ std::vector<std::byte> read_file(const std::filesystem::path &file_path)
 
 using namespace inference_engine;
 
-TEST_CASE("TfliteInferenceEngine with fixed-shape model")
+TEST_CASE("TfLiteInferenceEngine with fixed-shape model")
 {
     auto model = read_file("test-models/matmul.tflite");
-    auto engine = TfliteInferenceEngine(model.data(), model.size());
+    auto engine = TfLiteInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
     REQUIRE(engine.get_output_count() == 1);
@@ -49,10 +49,10 @@ TEST_CASE("TfliteInferenceEngine with fixed-shape model")
     REQUIRE(outputs == std::vector<std::vector<float>>{{{19, 22, 43, 50}}});
 }
 
-TEST_CASE("TfliteInferenceEngine with reshaping inputs")
+TEST_CASE("TfLiteInferenceEngine with reshaping inputs")
 {
     auto model = read_file("test-models/matmul.tflite");
-    auto engine = TfliteInferenceEngine(model.data(), model.size());
+    auto engine = TfLiteInferenceEngine(model.data(), model.size());
 
     REQUIRE(engine.get_input_count() == 2);
     REQUIRE(engine.get_output_count() == 1);

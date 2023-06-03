@@ -14,7 +14,7 @@ endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded)
 set(CMAKE_INSTALL_MESSAGE NEVER)
 
-add_library(inference_engine_tflite STATIC src/TfliteInferenceEngine.cpp)
+add_library(inference_engine_tflite STATIC src/TfLiteInferenceEngine.cpp)
 set_target_properties(inference_engine_tflite PROPERTIES
     CXX_STANDARD 17
     POSITION_INDEPENDENT_CODE ON
@@ -39,7 +39,7 @@ install(TARGETS inference_engine_tflite)
 install(DIRECTORY ${TENSORFLOWLITE_DIR}/ DESTINATION extern)
 
 if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
-    add_executable(test_inference_engine_tflite src/TfliteInferenceEngine.test.cpp)
+    add_executable(test_inference_engine_tflite src/TfLiteInferenceEngine.test.cpp)
     set_target_properties(test_inference_engine_tflite PROPERTIES CXX_STANDARD 17)
     target_link_libraries(test_inference_engine_tflite inference_engine_tflite)
 
