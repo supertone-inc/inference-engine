@@ -86,6 +86,7 @@ public:
                   Ort::SessionOptions().SetIntraOpNumThreads(1)
               )
           )
+        , io_binding(session)
         , allocator()
         , memory_info(Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU))
         , run_options(nullptr)
@@ -101,6 +102,7 @@ public:
                 reinterpret_cast<const int64_t *>(input_shapes[i].data()),
                 input_shapes[i].size()
             ));
+            io_binding.BindInput(input_names[i].get(), input_values[i]);
         }
 
         for (auto i = 0; i < output_count; i++)
@@ -112,6 +114,7 @@ public:
                 reinterpret_cast<const int64_t *>(output_shapes[i].data()),
                 output_shapes[i].size()
             ));
+            io_binding.BindOutput(output_names[i].get(), output_values[i]);
         }
     }
 
@@ -143,6 +146,7 @@ public:
             reinterpret_cast<const int64_t *>(input_shapes[index].data()),
             input_shapes[index].size()
         );
+        io_binding.BindInput(input_names[index].get(), input_values[index]);
     }
 
     void set_output_shape(size_t index, const std::vector<size_t> &shape)
@@ -153,6 +157,7 @@ public:
             reinterpret_cast<const int64_t *>(output_shapes[index].data()),
             output_shapes[index].size()
         );
+        io_binding.BindOutput(output_names[index].get(), output_values[index]);
     }
 
     float *get_input_data(size_t index)
@@ -174,6 +179,7 @@ public:
             reinterpret_cast<const int64_t *>(input_shapes[index].data()),
             input_shapes[index].size()
         );
+        io_binding.BindInput(input_names[index].get(), input_values[index]);
     }
 
     void set_output_data(size_t index, float *data)
@@ -185,41 +191,21 @@ public:
             reinterpret_cast<const int64_t *>(output_shapes[index].data()),
             output_shapes[index].size()
         );
+        io_binding.BindOutput(output_names[index].get(), output_values[index]);
     }
 
     void run()
     {
-        std::vector<const char *> input_names;
-        input_names.reserve(this->input_names.size());
-        for (const auto &v : this->input_names)
-        {
-            input_names.emplace_back(v.get());
-        }
-
-        std::vector<const char *> output_names;
-        output_names.reserve(this->output_names.size());
-        for (const auto &v : this->output_names)
-        {
-            output_names.emplace_back(v.get());
-        }
-
-        session.Run(
-            run_options,
-            input_names.data(),
-            input_values.data(),
-            input_values.size(),
-            output_names.data(),
-            output_values.data(),
-            output_values.size()
-        );
+        session.Run(run_options, io_binding);
     }
 
 private:
     Ort::Env env;
     Ort::Session session;
+    Ort::IoBinding io_binding;
     Ort::AllocatorWithDefaultOptions allocator;
-    const Ort::MemoryInfo memory_info;
-    const Ort::RunOptions run_options;
+    Ort::MemoryInfo memory_info;
+    Ort::RunOptions run_options;
 
     const size_t input_count;
     const size_t output_count;
