@@ -32,7 +32,7 @@ if(INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS)
     target_link_libraries(test_inference_engine_tflite_sys inference_engine_tflite_sys)
 
     set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-    include(../tflite-cpp/cmake/catch2.cmake)
+    include(../core-cpp/cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_tflite_sys Catch2WithMain)
 
     if(APPLE)
