@@ -200,12 +200,12 @@ public:
 
     void set_input_data(size_t index, const float *data)
     {
-        interpreter->input_tensor(index)->data.f = const_cast<float *>(data);
+        interpreter->input_tensor(index)->data.data = const_cast<float *>(data);
     }
 
     void set_output_data(size_t index, float *data)
     {
-        interpreter->output_tensor(index)->data.f = data;
+        interpreter->output_tensor(index)->data.data = data;
     }
 
     void run()
