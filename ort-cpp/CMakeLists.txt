@@ -49,6 +49,8 @@ if(INFERENCE_ENGINE_ORT_RUN_TESTS)
 
     if(APPLE)
         target_link_libraries(test_inference_engine_ort "-framework Foundation")
+    elseif(UNIX)
+        target_link_libraries(Catch2WithMain PUBLIC dl pthread)
     endif()
 
     add_custom_target(run_test_inference_engine_ort

@@ -47,6 +47,10 @@ if(INFERENCE_ENGINE_TFLITE_RUN_TESTS)
     include(../core-cpp/cmake/catch2.cmake)
     target_link_libraries(test_inference_engine_tflite Catch2WithMain)
 
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(Catch2WithMain PUBLIC dl pthread)
+    endif()
+
     add_custom_target(run_test_inference_engine_tflite
         ALL
         COMMAND test_inference_engine_tflite
