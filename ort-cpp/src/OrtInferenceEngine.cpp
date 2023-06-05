@@ -172,25 +172,49 @@ public:
 
     void set_input_data(size_t index, const float *data)
     {
-        input_values[index] = Ort::Value::CreateTensor<float>(
-            memory_info,
-            const_cast<float *>(data),
-            input_shapes[index].get_element_count(),
-            reinterpret_cast<const int64_t *>(input_shapes[index].data()),
-            input_shapes[index].size()
-        );
+        if (data)
+        {
+            input_values[index] = Ort::Value::CreateTensor<float>(
+                memory_info,
+                const_cast<float *>(data),
+                input_shapes[index].get_element_count(),
+                reinterpret_cast<const int64_t *>(input_shapes[index].data()),
+                input_shapes[index].size()
+            );
+        }
+        else
+        {
+            input_values[index] = Ort::Value::CreateTensor<float>(
+                allocator,
+                reinterpret_cast<const int64_t *>(input_shapes[index].data()),
+                input_shapes[index].size()
+            );
+        }
+
         io_binding.BindInput(input_names[index].get(), input_values[index]);
     }
 
     void set_output_data(size_t index, float *data)
     {
-        output_values[index] = Ort::Value::CreateTensor<float>(
-            memory_info,
-            data,
-            output_shapes[index].get_element_count(),
-            reinterpret_cast<const int64_t *>(output_shapes[index].data()),
-            output_shapes[index].size()
-        );
+        if (data)
+        {
+            output_values[index] = Ort::Value::CreateTensor<float>(
+                memory_info,
+                data,
+                output_shapes[index].get_element_count(),
+                reinterpret_cast<const int64_t *>(output_shapes[index].data()),
+                output_shapes[index].size()
+            );
+        }
+        else
+        {
+            output_values[index] = Ort::Value::CreateTensor<float>(
+                allocator,
+                reinterpret_cast<const int64_t *>(output_shapes[index].data()),
+                output_shapes[index].size()
+            );
+        }
+
         io_binding.BindOutput(output_names[index].get(), output_values[index]);
     }
 
