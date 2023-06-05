@@ -115,27 +115,40 @@ public:
             throw std::runtime_error("failed to build the interpreter");
         }
 
+        input_count = interpreter->inputs().size();
+        output_count = interpreter->outputs().size();
+
+        for (auto i = 0; i < input_count; i++)
+        {
+            interpreter->input_tensor(i)->allocation_type = kTfLiteCustom;
+        }
+
+        for (auto i = 0; i < output_count; i++)
+        {
+            interpreter->output_tensor(i)->allocation_type = kTfLiteCustom;
+        }
+
         if (interpreter->AllocateTensors() != kTfLiteOk)
         {
             throw std::runtime_error("failed to allocate tensor buffers");
         }
 
-        input_count = interpreter->inputs().size();
         for (auto i = 0; i < input_count; i++)
         {
             auto tensor = interpreter->input_tensor(i);
             auto dims = tensor->dims;
             input_shapes.emplace_back(dims->data, dims->size);
-            input_data.emplace_back(nullptr);
+            input_data.emplace_back(new float[input_shapes[i].get_element_count()]);
+            tensor->data.data = input_data[i].get();
         }
 
-        output_count = interpreter->outputs().size();
         for (auto i = 0; i < output_count; i++)
         {
             auto tensor = interpreter->output_tensor(i);
             auto dims = tensor->dims;
             output_shapes.emplace_back(dims->data, dims->size);
-            output_data.emplace_back(nullptr);
+            output_data.emplace_back(new float[output_shapes[i].get_element_count()]);
+            tensor->data.data = output_data[i].get();
         }
     }
 
@@ -175,7 +188,8 @@ public:
             auto tensor = interpreter->input_tensor(index);
             auto dims = tensor->dims;
             input_shapes.emplace(input_shapes.begin() + index, dims->data, dims->size);
-            input_data[index] = nullptr;
+            input_data[index].reset(new float[input_shapes[index].get_element_count()]);
+            tensor->data.data = input_data[index].get();
         }
 
         for (auto i = 0; i < output_count; i++)
@@ -183,7 +197,8 @@ public:
             auto tensor = interpreter->output_tensor(i);
             auto dims = tensor->dims;
             output_shapes.emplace(output_shapes.begin() + i, dims->data, dims->size);
-            output_data[i] = nullptr;
+            output_data[i].reset(new float[output_shapes[i].get_element_count()]);
+            tensor->data.data = output_data[i].get();
         }
     }
 
@@ -194,41 +209,40 @@ public:
 
     float *get_input_data(size_t index)
     {
-        if (input_data[index])
-        {
-            return input_data[index];
-        }
-
         return interpreter->typed_input_tensor<float>(index);
     }
 
     const float *get_output_data(size_t index) const
     {
-        if (output_data[index])
-        {
-            return output_data[index];
-        }
-
         return interpreter->typed_output_tensor<float>(index);
     }
 
     void set_input_data(size_t index, const float *data)
     {
-        input_data[index] = const_cast<float *>(data);
-
         if (data)
         {
-            std::copy_n(
-                data,
-                interpreter->input_tensor(index)->bytes / sizeof(float),
-                interpreter->typed_input_tensor<float>(index)
-            );
+            interpreter->input_tensor(index)->data.data = const_cast<float *>(data);
+            input_data[index].reset();
+        }
+        else
+        {
+            input_data[index].reset(new float[input_shapes[index].get_element_count()]);
+            interpreter->input_tensor(index)->data.data = input_data[index].get();
         }
     }
 
     void set_output_data(size_t index, float *data)
     {
-        output_data[index] = data;
+        if (data)
+        {
+            interpreter->output_tensor(index)->data.data = data;
+            output_data[index].reset();
+        }
+        else
+        {
+            output_data[index].reset(new float[output_shapes[index].get_element_count()]);
+            interpreter->output_tensor(index)->data.data = output_data[index].get();
+        }
     }
 
     void run()
@@ -236,18 +250,6 @@ public:
         if (interpreter->Invoke() != kTfLiteOk)
         {
             throw std::runtime_error("failed to invoke the interpreter");
-        }
-
-        for (auto i = 0; i < output_count; i++)
-        {
-            if (output_data[i])
-            {
-                std::copy_n(
-                    interpreter->typed_output_tensor<float>(i),
-                    interpreter->output_tensor(i)->bytes / sizeof(float),
-                    output_data[i]
-                );
-            }
         }
     }
 
@@ -261,8 +263,8 @@ private:
     std::vector<Shape> input_shapes;
     std::vector<Shape> output_shapes;
 
-    std::vector<float *> input_data;
-    std::vector<float *> output_data;
+    std::vector<std::unique_ptr<float>> input_data;
+    std::vector<std::unique_ptr<float>> output_data;
 };
 
 TfLiteInferenceEngine::TfLiteInferenceEngine(const void *model_data, size_t model_data_size_bytes)
