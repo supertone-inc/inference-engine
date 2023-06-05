@@ -40,7 +40,7 @@ if(NOT ONNXRUNTIME_DIR)
     include(FetchContent)
     FetchContent_Declare(
         onnxruntime
-        URL https://github.com/supertone-inc/onnxruntime-build/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-${ONNXRUNTIME_OS}-${ONNXRUNTIME_ARCH}-static-lib-${ONNXRUNTIME_VERSION}${ONNXRUNTIME_EXTENSION}
+        URL https://github.com/supertone-inc/onnxruntime-build/releases/download/v${ONNXRUNTIME_VERSION}/onnxruntime-${ONNXRUNTIME_OS}-${ONNXRUNTIME_ARCH}-static_lib-${ONNXRUNTIME_VERSION}${ONNXRUNTIME_EXTENSION}
     )
     FetchContent_MakeAvailable(onnxruntime)
 

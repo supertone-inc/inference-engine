@@ -40,7 +40,7 @@ if(NOT TENSORFLOWLITE_DIR)
     include(FetchContent)
     FetchContent_Declare(
         tensorflowlite
-        URL https://github.com/supertone-inc/tensorflowlite-build/releases/download/v${TENSORFLOWLITE_VERSION}/tensorflowlite-${TENSORFLOWLITE_OS}-${TENSORFLOWLITE_ARCH}-static-lib-${TENSORFLOWLITE_VERSION}${TENSORFLOWLITE_EXTENSION}
+        URL https://github.com/supertone-inc/tensorflowlite-build/releases/download/v${TENSORFLOWLITE_VERSION}/tensorflowlite-${TENSORFLOWLITE_OS}-${TENSORFLOWLITE_ARCH}-static_lib-${TENSORFLOWLITE_VERSION}${TENSORFLOWLITE_EXTENSION}
     )
     FetchContent_MakeAvailable(tensorflowlite)
 
