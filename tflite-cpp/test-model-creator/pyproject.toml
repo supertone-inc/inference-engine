@@ -6,7 +6,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.12"
-tensorflow-macos = { version = "2.12.0", platform = "darwin" }
+tensorflow-macos = { version = "2.13.0", platform = "darwin" }
 
 [build-system]
 requires = ["poetry-core"]
