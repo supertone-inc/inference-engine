@@ -71,14 +71,14 @@ jobs:
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v8
 
-      - name: Test `ort-cpp/test-model-creator`
-        working-directory: ort-cpp/test-model-creator
+      - name: Test `ort-cpp/test-model-generator`
+        working-directory: ort-cpp/test-model-generator
         run: |
           poetry install
           poetry run python .
 
-      - name: Test `tflite-cpp/test-model-creator`
-        working-directory: tflite-cpp/test-model-creator
+      - name: Test `tflite-cpp/test-model-generator`
+        working-directory: tflite-cpp/test-model-generator
         run: |
           poetry install
           poetry run python .

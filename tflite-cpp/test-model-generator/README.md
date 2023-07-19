@@ -1,4 +1,4 @@
-# Test Model Creator
+# Test Model Generator
 
 ## Requirements
 
@@ -11,7 +11,7 @@
 poetry install
 ```
 
-## Create Models for Testing
+## Generate Models for Testing
 
 ```sh
 poetry run python .
