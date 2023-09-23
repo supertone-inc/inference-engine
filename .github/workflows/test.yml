@@ -68,8 +68,8 @@ jobs:
           brew install python@${{ env.PYTHON_VERSION }}
           echo /opt/homebrew/opt/python@${{ env.PYTHON_VERSION }}/libexec/bin >> $GITHUB_PATH
 
-      - name: Setup Poetry
-        uses: Gr1N/setup-poetry@v8
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
 
       - name: Test `ort-cpp/test-model-generator`
         working-directory: ort-cpp/test-model-generator
