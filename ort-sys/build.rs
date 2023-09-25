@@ -6,51 +6,30 @@ fn main() {
 }
 
 fn build_cpp() {
-    use const_format::formatcp;
-    use execute_command as exec;
+    use execute_command::ExecuteCommand;
     use std::env;
     use std::path::PathBuf;
+    use std::process::Command;
 
     #[rustfmt::skip] const ONNXRUNTIME_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR");
     #[rustfmt::skip] const ONNXRUNTIME_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION");
 
-    const CMAKE_SOURCE_DIR: &str = env!("CARGO_MANIFEST_DIR");
-    const CMAKE_BUILD_DIR: &str = formatcp!("{CMAKE_SOURCE_DIR}/build");
-    const CMAKE_CONFIG: &str = if cfg!(debug_assertions) {
-        "Debug"
-    } else {
-        "Release"
-    };
     let cmake_install_prefix = env::var("OUT_DIR").unwrap();
 
     #[rustfmt::skip]
-    exec::status(format!(
-        "cmake \
-            -S '{CMAKE_SOURCE_DIR}' \
-            -B '{CMAKE_BUILD_DIR}' \
-            -D CMAKE_BUILD_TYPE={CMAKE_CONFIG} \
-            -D CMAKE_CONFIGURATION_TYPES={CMAKE_CONFIG} \
-            -D CMAKE_INSTALL_PREFIX='{cmake_install_prefix}' \
-            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR='{ONNXRUNTIME_DIR}' \
-            -D INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION={ONNXRUNTIME_VERSION} \
-            -D INFERENCE_ENGINE_ORT_RUN_TESTS=OFF \
-            -D INFERENCE_ENGINE_ORT_SYS_RUN_TESTS=OFF",
-        ONNXRUNTIME_DIR = ONNXRUNTIME_DIR.unwrap_or_default(),
-        ONNXRUNTIME_VERSION = ONNXRUNTIME_VERSION.unwrap_or_default(),
-    ))
-    .unwrap();
-    exec::status(format!(
-        "cmake \
-            --build '{CMAKE_BUILD_DIR}' \
-            --config {CMAKE_CONFIG} \
-            --parallel"
-    ))
-    .unwrap();
-    exec::status(format!(
-        "cmake \
-            --install '{CMAKE_BUILD_DIR}' \
-            --config {CMAKE_CONFIG}"
-    ))
+    if cfg!(unix) {
+        Command::new("./build.sh")
+    } else {
+        Command::new("./build.bat")
+    }
+    .env("CMAKE_BUILD_DIR", format!("{cmake_install_prefix}/build"))
+    .env("CMAKE_CONFIG", if cfg!(debug_assertions) { "Debug" } else { "Release" })
+    .env("CMAKE_INSTALL_PREFIX", &cmake_install_prefix)
+    .env("INFERENCE_ENGINE_ORT_ONNXRUNTIME_DIR", ONNXRUNTIME_DIR.unwrap_or_default())
+    .env("INFERENCE_ENGINE_ORT_ONNXRUNTIME_VERSION", ONNXRUNTIME_VERSION.unwrap_or_default())
+    .env("INFERENCE_ENGINE_ORT_RUN_TESTS", "OFF")
+    .env("INFERENCE_ENGINE_ORT_SYS_RUN_TESTS", "OFF")
+    .execute_status()
     .unwrap();
 
     let lib_dir = PathBuf::from(&cmake_install_prefix)
