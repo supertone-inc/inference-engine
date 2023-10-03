@@ -1,5 +1,12 @@
 [workspace]
-members = ["core", "core-sys", "ort", "ort-sys", "tflite", "tflite-sys"]
+members = [
+    "core-rs",
+    "core-sys",
+    "ort-rs",
+    "ort-sys",
+    "tflite-rs",
+    "tflite-sys",
+]
 
 [workspace.package]
 version = "0.0.0"
@@ -18,14 +25,14 @@ ort = ["inference-engine-ort"]
 tflite = ["inference-engine-tflite"]
 
 [dependencies]
-inference-engine-core = { path = "core" }
-inference-engine-ort = { path = "ort", optional = true }
-inference-engine-tflite = { path = "tflite", optional = true }
+inference-engine-core = { path = "core-rs" }
+inference-engine-ort = { path = "ort-rs", optional = true }
+inference-engine-tflite = { path = "tflite-rs", optional = true }
 
 [dev-dependencies]
 assert_matches = "1.5"
-inference-engine-ort = { path = "ort" }
-inference-engine-tflite = { path = "tflite" }
+inference-engine-ort = { path = "ort-rs" }
+inference-engine-tflite = { path = "tflite-rs" }
 
 [dev-dependencies.cargo-husky]
 version = "1"

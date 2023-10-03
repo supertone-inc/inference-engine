@@ -8,7 +8,7 @@ edition.workspace = true
 generate-bindings = ["bindgen"]
 
 [dependencies]
-inference-engine-core = { path = "../core" }
+inference-engine-core = { path = "../core-rs" }
 
 [build-dependencies]
 bindgen = { version = "0.68", optional = true }

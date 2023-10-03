@@ -15,12 +15,7 @@ updates:
     schedule:
       interval: "weekly"
 
-  - directory: "/core"
-    package-ecosystem: "cargo"
-    schedule:
-      interval: "weekly"
-
-  - directory: "/ort"
+  - directory: "/core-rs"
     package-ecosystem: "cargo"
     schedule:
       interval: "weekly"
@@ -35,12 +30,12 @@ updates:
     schedule:
       interval: "weekly"
 
-  - directory: "/ort-sys"
+  - directory: "/ort-rs"
     package-ecosystem: "cargo"
     schedule:
       interval: "weekly"
 
-  - directory: "/tflite"
+  - directory: "/ort-sys"
     package-ecosystem: "cargo"
     schedule:
       interval: "weekly"
@@ -52,6 +47,11 @@ updates:
 
   - directory: "/tflite-cpp/test-model-creator"
     package-ecosystem: "pip"
+    schedule:
+      interval: "weekly"
+
+  - directory: "/tflite-rs"
+    package-ecosystem: "cargo"
     schedule:
       interval: "weekly"
 
