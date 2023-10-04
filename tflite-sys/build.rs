@@ -14,6 +14,8 @@ fn build_cpp() {
     #[rustfmt::skip] const TENSORFLOWLITE_DIR: Option<&str> = option_env!("INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR");
     #[rustfmt::skip] const TENSORFLOWLITE_VERSION: Option<&str> = option_env!("INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION");
 
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     let cmake_install_prefix = env::var("OUT_DIR").unwrap();
 
     #[rustfmt::skip]
@@ -29,6 +31,19 @@ fn build_cpp() {
     .env("INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION", TENSORFLOWLITE_VERSION.unwrap_or_default())
     .env("INFERENCE_ENGINE_TFLITE_RUN_TESTS", "OFF")
     .env("INFERENCE_ENGINE_TFLITE_SYS_RUN_TESTS", "OFF")
+    .env("CMAKE_OPTIONS",
+        match (target_os.as_str(), target_arch.as_str()) {
+            ("macos", "aarch64") => {
+                "-D CMAKE_OSX_ARCHITECTURES=arm64"
+            }
+            ("macos", "x86_64") => {
+                "-D CMAKE_OSX_ARCHITECTURES=x86_64"
+            }
+            _ => {
+                ""
+            }
+        }
+    )
     .execute_status()
     .unwrap();
 
@@ -52,7 +67,9 @@ fn build_cpp() {
     println!("cargo:rustc-link-lib=tensorflowlite");
 
     #[cfg(target_os = "linux")]
-    println!("cargo:rustc-link-lib=stdc++");
+    {
+        println!("cargo:rustc-link-lib=stdc++");
+    }
 
     #[cfg(target_os = "macos")]
     {
@@ -62,12 +79,10 @@ fn build_cpp() {
     println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_DIR");
     println!("cargo:rerun-if-env-changed=INFERENCE_ENGINE_TFLITE_TENSORFLOWLITE_VERSION");
 
-    println!("cargo:rerun-if-changed=CMakeLists.txt");
-    println!("cargo:rerun-if-changed=include");
-    println!("cargo:rerun-if-changed=src/lib.cpp");
+    println!("cargo:rerun-if-changed=.");
+    println!("cargo:rerun-if-changed=../core-cpp");
     println!("cargo:rerun-if-changed=../core-sys");
     println!("cargo:rerun-if-changed=../tflite-cpp");
-    println!("cargo:rerun-if-changed=../core-cpp");
 }
 
 #[cfg(feature = "generate-bindings")]
