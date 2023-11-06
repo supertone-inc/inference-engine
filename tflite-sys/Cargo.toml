@@ -15,6 +15,6 @@ inference-engine-core-sys = { path = "../core-sys" }
 execute-command = "0.3"
 
 [build-dependencies]
-bindgen = { version = "0.68", optional = true }
+bindgen = { version = "0.69", optional = true }
 const_format = "0.2"
 execute-command = "0.3"
