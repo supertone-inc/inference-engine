@@ -11,4 +11,4 @@ generate-bindings = ["bindgen"]
 inference-engine-core = { path = "../core-rs" }
 
 [build-dependencies]
-bindgen = { version = "0.68", optional = true }
+bindgen = { version = "0.69", optional = true }
