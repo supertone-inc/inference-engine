@@ -24,7 +24,7 @@ jobs:
       matrix:
         runs-on:
           - buildjet-4vcpu-ubuntu-2204-arm
-          - ghcr.io/cirruslabs/macos-ventura-xcode:latest
+          - macos-latest-xlarge
           - macos-latest
           - ubuntu-latest
           - windows-latest
