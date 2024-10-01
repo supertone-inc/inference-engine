@@ -10,6 +10,9 @@ add_library(inference_engine_ort_sys STATIC src/lib.cpp)
 set_target_properties(inference_engine_ort_sys PROPERTIES
     CXX_STANDARD 17
     POSITION_INDEPENDENT_CODE ON
+    C_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
 )
 target_include_directories(inference_engine_ort_sys PUBLIC include)
 
