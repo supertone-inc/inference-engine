@@ -71,6 +71,12 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
 
+      - name: Install HDF5
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: |
+          sudo apt-get update -q -y
+          sudo apt-get install -q -y libhdf5-dev
+
       - name: Test `ort-cpp/test-model-generator`
         working-directory: ort-cpp/test-model-generator
         run: |
