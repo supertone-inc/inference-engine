@@ -69,7 +69,7 @@ jobs:
           echo /opt/homebrew/opt/python@${{ env.PYTHON_VERSION }}/libexec/bin >> $GITHUB_PATH
 
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
 
       - name: Test `ort-cpp/test-model-generator`
         working-directory: ort-cpp/test-model-generator
