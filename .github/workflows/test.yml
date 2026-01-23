@@ -68,6 +68,12 @@ jobs:
           brew install python@${{ env.PYTHON_VERSION }}
           echo /opt/homebrew/opt/python@${{ env.PYTHON_VERSION }}/libexec/bin >> $GITHUB_PATH
 
+      - name: Install HDF5 (Linux ARM64)
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        run: |
+          sudo apt-get update -q -y
+          sudo apt-get install -q -y libhdf5-dev
+
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
 
