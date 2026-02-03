@@ -75,7 +75,7 @@ jobs:
           sudo apt-get install -q -y libhdf5-dev
 
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
 
       - name: Test `ort-cpp/test-model-generator`
         working-directory: ort-cpp/test-model-generator
